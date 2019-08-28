@@ -1,0 +1,22 @@
+# Getting a float dataref
+[[Data]] # Each dataref is an Data table
+name = "airspeed" # User specify name of the dataref, which will be used to access data later
+string = "sim/flightmodel/position/indicated_airspeed" # Dataref
+type = "float" # Type of the dataref. Can be either "int", "float" or "char"
+
+# Getting a float array dataref
+[[Data]]
+name = "fuel_flow"
+string = "sim/cockpit2/engine/indicators/fuel_flow_kg_sec"
+type = "float"
+# If "start_index" and "num_value" present in the table, that dataref will be treated as an array of value
+start_index = 0 # The start index of the array that Ditto should start reading from
+num_value = 2 # Number of value after the start_index Ditto should read.
+
+# Getting a string dataref
+[[Data]]
+name = "legs"
+string = "laminar/B738/fms/legs"
+type = "string"
+start_index = 0
+num_value = 512

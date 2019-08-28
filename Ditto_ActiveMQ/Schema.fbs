@@ -1,0 +1,8 @@
+namespace Ditto;
+
+table Data {
+    size:int;
+    buffer:[ubyte] (flexbuffer);
+}
+
+root_type Data;
