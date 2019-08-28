@@ -37,6 +37,10 @@ PLUGIN_API int XPluginStart(
 	strcpy_s(outSig, signature.length() + 1, signature.c_str());
 	strcpy_s(outDesc, description.length() + 1, description.c_str());
 
+	activemq::library::ActiveMQCPP::initializeLibrary();
+
+	producer = std::make_shared<Producer>("failover:(tcp://127.0.0.1:61616)", "XP-A320");
+
 	return 1;
 }
 
@@ -64,10 +68,6 @@ PLUGIN_API void XPluginDisable(void) {
 PLUGIN_API int  XPluginEnable(void)  {
 	if (!new_data.get_status()) {
 		if (new_data.init()) {
-
-			activemq::library::ActiveMQCPP::initializeLibrary();
-
-			producer = std::make_shared<Producer>("failover:(tcp://127.0.0.1:61616)", "XP-A320");
 
 			producer->run();
 

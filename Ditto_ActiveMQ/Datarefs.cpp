@@ -78,19 +78,29 @@ std::vector<uint8_t> dataref::get_flexbuffers_data()
 			else {
 				if (dataref.type == "int") {
 					auto int_num = get_value_int_array(dataref.dataref, dataref.start_index.value(), dataref.num_value.value());
-					flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
-						for (auto& i : int_num) {
-							flexbuffers_builder_.Int(i);
-						}
-						});
+					if (2 <= dataref.num_value.value() && dataref.num_value.value() <= 4) {
+						flexbuffers_builder_.FixedTypedVector(dataref.name.c_str(), int_num.data(), dataref.num_value.value());
+					}
+					else {
+						flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
+							for (auto& i : int_num) {
+								flexbuffers_builder_.Int(i);
+							}
+							});
+					}
 				}
 				else if (dataref.type == "float") {
 					auto float_num = get_value_float_array(dataref.dataref, dataref.start_index.value(), dataref.num_value.value());
+					if (2 <= dataref.num_value.value() && dataref.num_value.value() <= 4) {
+						flexbuffers_builder_.FixedTypedVector(dataref.name.c_str(), float_num.data(), dataref.num_value.value());
+					}
+					else {
 					flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
 						for (auto& i : float_num) {
 							flexbuffers_builder_.Float(i);
 						}
 						});
+					}
 				}
 			}
 		}

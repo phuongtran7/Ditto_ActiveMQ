@@ -2,7 +2,7 @@
 
 std::string get_plugin_path()
 {
-	const auto my_id = XPLMFindPluginBySignature("phuong.x-plane.ditto.websocket");
+	const auto my_id = XPLMFindPluginBySignature("phuong.x-plane.activemq.extractor");
 	std::vector<char> buffer(1024);
 	XPLMGetPluginInfo(my_id, nullptr, buffer.data(), nullptr, nullptr);
 	auto return_string = std::string(buffer.data());
