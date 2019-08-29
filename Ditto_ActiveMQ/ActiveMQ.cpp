@@ -50,7 +50,6 @@ void Producer::run() {
 		destination.reset(session->createTopic(destURI));
 		producer.reset(session->createProducer(destination.get()));
 		producer->setDeliveryMode(cms::DeliveryMode::NON_PERSISTENT);
-
 		connection->start();
 	}
 	catch (cms::CMSException& e) {
