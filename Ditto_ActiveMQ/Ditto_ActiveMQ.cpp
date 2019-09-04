@@ -39,7 +39,7 @@ PLUGIN_API int XPluginStart(
 
 	activemq::library::ActiveMQCPP::initializeLibrary();
 
-	producer = std::make_shared<Producer>("failover:(tcp://127.0.0.1:61616)", "XP-A320");
+	producer = std::make_shared<Producer>("failover:(tcp://192.168.72.249:61616)", "XP-A320");
 
 	return 1;
 }
