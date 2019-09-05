@@ -10,7 +10,7 @@ dataref new_data;
 XPLMFlightLoopID data_flight_loop_id{};
 XPLMFlightLoopID retry_flight_loop_id{};
 std::shared_ptr<Producer> producer;
-
+std::string topic{};
 
 float data_callback(
 	float                inElapsedSinceLastCall,
@@ -23,6 +23,8 @@ float retry_callback(
 	float                inElapsedTimeSinceLastFlightLoop,
 	int                  inCounter,
 	void* inRefcon);
+
+std::string get_topic_name();
 
 PLUGIN_API int XPluginStart(
 	char *		outName,
@@ -38,8 +40,6 @@ PLUGIN_API int XPluginStart(
 	strcpy_s(outDesc, description.length() + 1, description.c_str());
 
 	activemq::library::ActiveMQCPP::initializeLibrary();
-
-	producer = std::make_shared<Producer>("failover:(tcp://192.168.72.249:61616)", "XP-A320");
 
 	return 1;
 }
@@ -68,7 +68,7 @@ PLUGIN_API void XPluginDisable(void) {
 PLUGIN_API int  XPluginEnable(void)  {
 	if (!new_data.get_status()) {
 		if (new_data.init()) {
-
+			producer = std::make_shared<Producer>("failover:(tcp://192.168.72.249:61616)", get_topic_name());
 			producer->run();
 
 			if (new_data.get_not_found_list_size() != 0) {
@@ -129,5 +129,19 @@ float retry_callback(float inElapsedSinceLastCall,
 	else {
 		// No more uninitialized dataref to process
 		return 0.0;
+	}
+}
+
+std::string get_topic_name() {
+	try
+	{
+		const auto input_file = cpptoml::parse_file(get_plugin_path() + "Datarefs.toml");
+		return input_file->get_as<std::string>("topic").value_or("XP-Ditto");
+	}
+	catch (const cpptoml::parse_exception& ex)
+	{
+		XPLMDebugString(ex.what());
+		XPLMDebugString("\n");
+		return "XP-Ditto";
 	}
 }
