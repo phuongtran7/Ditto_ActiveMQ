@@ -36,14 +36,11 @@ private:
 	void set_retry_limit();
 	flexbuffers::Builder flexbuffers_builder_;
 	flatbuffers::FlatBufferBuilder flatbuffers_builder_;
-	bool status_{};
 public:
 	uint8_t* get_serialized_data();
 	size_t get_serialized_size();
 	size_t get_not_found_list_size();
 	void retry_dataref();
-	void set_status(bool in_status);
-	bool get_status();
 	void empty_list();
 	void reset_builder();
 	bool init();

@@ -24,7 +24,6 @@ void dataref::empty_list()
 	dataref_list_.clear();
 	not_found_list_.clear();
 	reset_builder();
-	set_status(false);
 }
 
 uint8_t* dataref::get_serialized_data()
@@ -110,16 +109,6 @@ std::vector<uint8_t> dataref::get_flexbuffers_data()
 	flexbuffers_builder_.Finish();
 
 	return flexbuffers_builder_.GetBuffer();
-}
-
-bool dataref::get_status()
-{
-	return status_;
-}
-
-void dataref::set_status(bool in_status)
-{
-	status_ = in_status;
 }
 
 size_t dataref::get_flexbuffers_size()
@@ -299,7 +288,6 @@ bool dataref::init()
 {
 	if (get_data_list()) {
 		set_retry_limit();
-		set_status(true);
 		return true;
 	}
 	return false;
