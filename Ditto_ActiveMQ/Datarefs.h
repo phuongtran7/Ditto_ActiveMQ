@@ -30,7 +30,7 @@ private:
 	double get_value_double(XPLMDataRef in_dataref);
 	std::vector<int> get_value_int_array(XPLMDataRef in_dataref, int start_index, int end_index);
 	std::vector<float> get_value_float_array(XPLMDataRef in_dataref, int start_index, int end_index);
-	std::string get_value_char_array(XPLMDataRef in_dataref, int start_index, int end_index);
+	std::string get_value_string(XPLMDataRef in_dataref, int start_index, int end_index);
 	std::vector<uint8_t> get_flexbuffers_data();
 	size_t get_flexbuffers_size();
 	void set_retry_limit();
