@@ -9,7 +9,7 @@
 dataref new_data;
 XPLMFlightLoopID data_flight_loop_id{};
 XPLMFlightLoopID retry_flight_loop_id{};
-std::shared_ptr<Producer> producer;
+std::unique_ptr<Producer> producer;
 
 struct activemq_config {
 	std::string broker_address;
@@ -73,7 +73,7 @@ PLUGIN_API int  XPluginEnable(void) {
 		// Initializing ActiveMQ library and Producer
 		activemq::library::ActiveMQCPP::initializeLibrary();
 		auto config = get_activemq_config();
-		producer = std::make_shared<Producer>(config.broker_address, config.topic);
+		producer = std::make_unique<Producer>(config.broker_address, config.topic);
 		producer->run();
 
 		// If there are some datarefs we cannot find when plugin starts up
