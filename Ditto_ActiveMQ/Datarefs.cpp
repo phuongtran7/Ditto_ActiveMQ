@@ -236,16 +236,18 @@ double dataref::get_value_double(XPLMDataRef in_dataref)
 
 std::vector<int> dataref::get_value_int_array(XPLMDataRef in_dataref, int start_index, int number_of_value)
 {
-	std::unique_ptr<int[]> temp(new int[number_of_value]);
-	XPLMGetDatavi(in_dataref, temp.get(), start_index, number_of_value);
-	return std::vector<int>(temp.get(), temp.get() + number_of_value);
+	std::vector<int> temp;
+	temp.reserve(number_of_value);
+	XPLMGetDatavi(in_dataref, temp.data(), start_index, number_of_value);
+	return temp;
 }
 
 std::vector<float> dataref::get_value_float_array(XPLMDataRef in_dataref, int start_index, int number_of_value)
 {
-	std::unique_ptr<float[]> temp(new float[number_of_value]);
-	XPLMGetDatavf(in_dataref, temp.get(), start_index, number_of_value);
-	return std::vector<float>(temp.get(), temp.get() + number_of_value);
+	std::vector<float> temp;
+	temp.reserve(number_of_value);
+	XPLMGetDatavf(in_dataref, temp.data(), start_index, number_of_value);
+	return temp;
 }
 
 std::string dataref::get_value_char_array(XPLMDataRef in_dataref, int start_index, int number_of_value)
