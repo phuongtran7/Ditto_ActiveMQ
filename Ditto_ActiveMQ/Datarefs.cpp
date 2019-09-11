@@ -20,7 +20,7 @@ void dataref::reset_builder()
 void dataref::empty_list()
 {
 	// Try and get access to dataref_list_
-	std::lock_guard<std::mutex> guard(data_lock);
+	std::scoped_lock<std::mutex> guard(data_lock);
 	dataref_list_.clear();
 	not_found_list_.clear();
 	reset_builder();
@@ -49,7 +49,7 @@ size_t dataref::get_serialized_size()
 std::vector<uint8_t> dataref::get_flexbuffers_data()
 {
 	// Try and get access to dataref_list_
-	std::lock_guard<std::mutex> guard(data_lock);
+	std::scoped_lock<std::mutex> guard(data_lock);
 
 	const auto map_start = flexbuffers_builder_.StartMap();
 
@@ -133,7 +133,7 @@ void dataref::set_retry_limit()
 
 void dataref::retry_dataref() {
 	// Try and get access to not_found_list_ and dataref_list_
-	std::lock_guard<std::mutex> guard(data_lock);
+	std::scoped_lock<std::mutex> guard(data_lock);
 
 	// TO DO: add a flag in Dataref.toml to mark a dataref that will be created by another plugin later
 	// so that Ditto can search for it later after the plane loaded.
