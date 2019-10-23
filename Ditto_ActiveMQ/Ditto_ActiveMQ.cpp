@@ -79,7 +79,7 @@ PLUGIN_API int  XPluginEnable(void) {
 		// If there are some datarefs we cannot find when plugin starts up
 		if (new_data.get_not_found_list_size() != 0) {
 			// Register a new flight loop to retry finding datarefs
-			XPLMCreateFlightLoop_t retry_params { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, retry_callback, nullptr };
+			XPLMCreateFlightLoop_t retry_params{ sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, retry_callback, nullptr };
 			retry_flight_loop_id = XPLMCreateFlightLoop(&retry_params);
 			if (retry_flight_loop_id != nullptr)
 			{
@@ -88,7 +88,7 @@ PLUGIN_API int  XPluginEnable(void) {
 		}
 
 		// Register flight loop for sending data to broker
-		XPLMCreateFlightLoop_t data_params { sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, data_callback, nullptr };
+		XPLMCreateFlightLoop_t data_params{ sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, data_callback, nullptr };
 		data_flight_loop_id = XPLMCreateFlightLoop(&data_params);
 		if (data_flight_loop_id == nullptr)
 		{
