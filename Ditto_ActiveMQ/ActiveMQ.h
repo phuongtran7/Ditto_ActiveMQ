@@ -15,21 +15,16 @@
 class Producer : public decaf::lang::Runnable
 {
 private:
-	std::shared_ptr<cms::Connection> connection;
-	std::shared_ptr<cms::Session> session;
-	std::shared_ptr<cms::Topic> destination;
-	std::shared_ptr<cms::MessageProducer> producer;
-
-	std::string brokerURI;
-	std::string destURI;
-
-	Producer(const Producer&);
-	Producer& operator= (const Producer&);
-
+	std::unique_ptr<cms::ConnectionFactory> connectionFactory;
+	std::unique_ptr<cms::Connection> connection;
+	std::unique_ptr<cms::Session> session;
+	std::unique_ptr<cms::Topic> destination;
+	std::unique_ptr<cms::MessageProducer> producer;
+	std::string brokerURI{};
+	std::string destURI{};
 public:
-
-	Producer(const std::string& brokerURI, const std::string& destURI);
-	void close();
+	explicit Producer(const std::string& brokerURI, const std::string& destURI);
+	void cleanup();
 	void send_message(std::string& input);
 	void send_message(uint8_t* pointer, size_t size);
 	void run();

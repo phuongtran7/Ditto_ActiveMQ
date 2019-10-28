@@ -60,7 +60,7 @@ PLUGIN_API void XPluginDisable(void) {
 		XPLMDestroyFlightLoop(retry_flight_loop_id);
 	}
 
-	producer->close();
+	producer->cleanup();
 	producer.reset();
 
 	activemq::library::ActiveMQCPP::shutdownLibrary();
