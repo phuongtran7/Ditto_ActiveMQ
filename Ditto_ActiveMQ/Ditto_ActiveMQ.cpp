@@ -10,6 +10,8 @@ dataref new_data;
 XPLMFlightLoopID data_flight_loop_id{};
 XPLMFlightLoopID retry_flight_loop_id{};
 std::unique_ptr<Producer> producer;
+int activemq_counter_value;
+XPLMDataRef ActiveMQ;
 
 struct activemq_config {
 	std::string broker_address;
@@ -29,6 +31,12 @@ float retry_callback(
 	void* inRefcon);
 
 activemq_config get_activemq_config();
+
+void init_activemq();
+void shutdown_activemq();
+
+int GetActiveMQCounter(void* inRefcon);
+void SetActiveMQcounter(void* inRefcon, int inValue);
 
 PLUGIN_API int XPluginStart(
 	char* outName,
@@ -63,7 +71,7 @@ PLUGIN_API void XPluginDisable(void) {
 	producer->cleanup();
 	producer.reset();
 
-	activemq::library::ActiveMQCPP::shutdownLibrary();
+	shutdown_activemq();
 
 	XPLMDebugString("Disabling Ditto.\n");
 }
@@ -71,7 +79,7 @@ PLUGIN_API int  XPluginEnable(void) {
 	// First, init the Dataref list when plugin is enabled
 	if (new_data.init()) {
 		// Initializing ActiveMQ library and Producer
-		activemq::library::ActiveMQCPP::initializeLibrary();
+		init_activemq();
 		auto config = get_activemq_config();
 		producer = std::make_unique<Producer>(config.broker_address, config.topic);
 		producer->run();
@@ -147,7 +155,7 @@ activemq_config get_activemq_config() {
 			input_file->get_as<std::string>("topic").value_or("XP-Ditto")
 		};
 	}
-	catch (const cpptoml::parse_exception& ex)
+	catch (const cpptoml::parse_exception & ex)
 	{
 		XPLMDebugString(ex.what());
 		XPLMDebugString("\n");
@@ -156,4 +164,70 @@ activemq_config get_activemq_config() {
 			"XP-Ditto"
 		};
 	}
+}
+
+//Due to ActiveMQ requires that each process has to call ActiveMQCPP::initializeLibrary and ActiveMQCPP::shutdownLibrary,
+//when there are multiple plugin that uses ActiveMQ running at the same time, it is required to keep track of which plugin
+//should call the init and shutdown function.
+//
+//Every plugin that use ActiveMQ should participate in a simple bow of keys concept. Each plugin will check whether the "activemq/initialized" dataref exists.
+//If the dataref exists then there is already other plugin that was enable before the plugin and the call to ActiveMQCPP::initializeLibrary is already
+//performed. So it should not call that function again.
+//
+//If the dataref does not exist then the plugin is the first one enabled that needs to use ActiveMQ. In that case, the plugin will create the "activemq/initialized" dataref,
+//init it to zero and then call ActiveMQCPP::initializeLibrary.
+//
+//During the shutdown process, each of the plugin that use ActiveMQ will decrease the value of "activemq/initialized" dataref by one. If after decrement, the value
+//of the dataref returns to zero, that means there is no other plugin that use ActiveMQ anymore. The plugin can then safely call ActiveMQCPP::shutdownLibrary.
+
+void init_activemq()
+{
+	if ((ActiveMQ = XPLMFindDataRef("activemq/initialized")) != nullptr) {
+		// If the dataref exists then there is another plugin that calls ActiveMQCPP::initializeLibrary already
+		// So we should not call it again.
+		// We will just increase the dataref by one to inform that we are participating in using ActiveMQ
+		auto current = XPLMGetDatai(ActiveMQ);
+		XPLMSetDatai(ActiveMQ, (current + 1));
+	}
+	else {
+		// Create the dataref to inform all other plugin that comes later
+		ActiveMQ = XPLMRegisterDataAccessor("activemq/initialized",
+			xplmType_Int,
+			1,
+			GetActiveMQCounter, SetActiveMQcounter,
+			nullptr, nullptr,
+			nullptr, nullptr,
+			nullptr, nullptr,
+			nullptr, nullptr,
+			nullptr, nullptr,
+			nullptr, nullptr);
+
+		activemq::library::ActiveMQCPP::initializeLibrary();
+
+		// Init the counter to zero
+		XPLMSetDatai(ActiveMQ, 0);
+	}
+}
+
+void shutdown_activemq() {
+	// At this point the ActiveMQ should not be null as it was init by either us or other plugin
+	// So we just need to decrease it by one and check whether we are the one who should shutdown the library
+	auto current = XPLMGetDatai(ActiveMQ);
+	if ((current - 1) > 0) {
+		XPLMSetDatai(ActiveMQ, (current - 1));
+	}
+	else if ((current - 1) == 0) {
+		// There is no one else using ActiveMQ we should shutdown here
+		activemq::library::ActiveMQCPP::shutdownLibrary();
+	}
+}
+
+int GetActiveMQCounter(void* inRefcon)
+{
+	return activemq_counter_value;
+}
+
+void SetActiveMQcounter(void* inRefcon, int inValue)
+{
+	activemq_counter_value = inValue;
 }
