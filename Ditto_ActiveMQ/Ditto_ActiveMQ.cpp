@@ -215,15 +215,17 @@ void init_activemq()
 void shutdown_activemq() {
 	// At this point the ActiveMQ should not be null as it was init by either us or other plugin
 	// So we just need to decrease it by one and check whether we are the one who should shutdown the library
-	auto value = XPLMGetDatai(ActiveMQ);
+	auto current = XPLMGetDatai(ActiveMQ);
+	auto left = current - 1;
+	// Take our token
+	XPLMSetDatai(ActiveMQ, left);
 
-	if ((value - 1) <= 0) {
+	// Read the data again
+	current = XPLMGetDatai(ActiveMQ);
+
+	if (current <= 0) {
 		// There is no one else using ActiveMQ we should shutdown here
 		activemq::library::ActiveMQCPP::shutdownLibrary();
-		XPLMSetDatai(ActiveMQ, value);
-	}
-	else {
-		XPLMSetDatai(ActiveMQ, (value - 1));
 	}
 }
 
