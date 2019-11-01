@@ -164,10 +164,10 @@ activemq_config get_activemq_config() {
 }
 
 //Due to ActiveMQ requires that each process has to call ActiveMQCPP::initializeLibrary and ActiveMQCPP::shutdownLibrary,
-//when there are multiple plugin that uses ActiveMQ running at the same time, it is required to keep track of which plugin
+//when there are multiple plugins that use ActiveMQ running at the same time, it is required to keep track of which plugin
 //should call the init and shutdown function.
 //
-//Every plugin that use ActiveMQ should participate in a simple bow of keys concept. Each plugin will check whether the "activemq/initialized" dataref exists.
+//Each plugin should check whether the "activemq/initialized" dataref exists.
 //If the dataref exists then there is already other plugin that was enable before the plugin and the call to ActiveMQCPP::initializeLibrary is already
 //performed. So it should not call that function again.
 //
@@ -178,11 +178,9 @@ activemq_config get_activemq_config() {
 //So we currently cannot synchronize the shutdown process.
 //The current workaround that is to have a cleanup plugin, which should be the last one to be unloaded by X-Plane and call ActiveMQCPP::shutdownLibrary
 //from there.
-
 void init_activemq()
 {
-	ActiveMQ = XPLMFindDataRef("activemq/initialized");
-	if (ActiveMQ != nullptr) {
+	if ((ActiveMQ = XPLMFindDataRef("activemq/initialized")) != nullptr) {
 		// If the dataref exists then there is another plugin that calls ActiveMQCPP::initializeLibrary already
 		// So we should not call it again.
 		// We will just increase the dataref by one to inform that we are participating in using ActiveMQ
@@ -190,6 +188,9 @@ void init_activemq()
 		XPLMSetDatai(ActiveMQ, (current + 1));
 	}
 	else {
+		// Init ActiveMQ
+		activemq::library::ActiveMQCPP::initializeLibrary();
+
 		// Create the dataref to inform all other plugin that comes later
 		ActiveMQ = XPLMRegisterDataAccessor("activemq/initialized",
 			xplmType_Int,
@@ -202,9 +203,7 @@ void init_activemq()
 			nullptr, nullptr,
 			nullptr, nullptr);
 
-		activemq::library::ActiveMQCPP::initializeLibrary();
-
-		// Intialize our counter to one
+		// Initialize our counter to one
 		XPLMSetDatai(ActiveMQ, 1);
 	}
 }
