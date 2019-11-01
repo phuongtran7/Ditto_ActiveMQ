@@ -33,7 +33,6 @@ float retry_callback(
 activemq_config get_activemq_config();
 
 void init_activemq();
-void shutdown_activemq();
 
 int GetActiveMQCounter(void* inRefcon);
 void SetActiveMQcounter(void* inRefcon, int inValue);
@@ -70,8 +69,6 @@ PLUGIN_API void XPluginDisable(void) {
 
 	producer->cleanup();
 	producer.reset();
-
-	shutdown_activemq();
 
 	XPLMDebugString("Disabling Ditto.\n");
 }
@@ -177,8 +174,10 @@ activemq_config get_activemq_config() {
 //If the dataref does not exist then the plugin is the first one enabled that needs to use ActiveMQ. In that case, the plugin will create the "activemq/initialized" dataref,
 //init it to one and then call ActiveMQCPP::initializeLibrary.
 //
-//During the shutdown process, each of the plugin that use ActiveMQ will decrease the value of "activemq/initialized" dataref by one. If after decrement, the value
-//of the dataref returns to zero, that means there is no other plugin that use ActiveMQ anymore. The plugin can then safely call ActiveMQCPP::shutdownLibrary.
+//It's unfortunate that we cannot control the shutdown process as X-Plane API will not work if the plugin is entering disabled state.
+//So we currently cannot synchronize the shutdown process.
+//The current workaround that is to have a cleanup plugin, which should be the last one to be unloaded by X-Plane and call ActiveMQCPP::shutdownLibrary
+//from there.
 
 void init_activemq()
 {
@@ -205,27 +204,8 @@ void init_activemq()
 
 		activemq::library::ActiveMQCPP::initializeLibrary();
 
-
-		// Find and intialize our counter to one
-		ActiveMQ = XPLMFindDataRef("activemq/initialized");
+		// Intialize our counter to one
 		XPLMSetDatai(ActiveMQ, 1);
-	}
-}
-
-void shutdown_activemq() {
-	// At this point the ActiveMQ should not be null as it was init by either us or other plugin
-	// So we just need to decrease it by one and check whether we are the one who should shutdown the library
-	auto current = XPLMGetDatai(ActiveMQ);
-	auto left = current - 1;
-	// Take our token
-	XPLMSetDatai(ActiveMQ, left);
-
-	// Read the data again
-	current = XPLMGetDatai(ActiveMQ);
-
-	if (current <= 0) {
-		// There is no one else using ActiveMQ we should shutdown here
-		activemq::library::ActiveMQCPP::shutdownLibrary();
 	}
 }
 
