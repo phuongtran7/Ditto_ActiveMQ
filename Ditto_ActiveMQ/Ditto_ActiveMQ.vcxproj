@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClInclude Include="ActiveMQ.h" />
     <ClInclude Include="Datarefs.h" />
+    <ClInclude Include="Ditto_ActiveMQ.h" />
     <ClInclude Include="Schema_generated.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>

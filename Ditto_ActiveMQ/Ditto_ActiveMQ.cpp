@@ -1,41 +1,4 @@
-#define NOMINMAX
-
-#include "ActiveMQ.h"
-#include "Datarefs.h"
-
-#include "XPLMDataAccess.h"
-#include "XPLMProcessing.h"
-
-dataref new_data;
-XPLMFlightLoopID data_flight_loop_id{};
-XPLMFlightLoopID retry_flight_loop_id{};
-std::unique_ptr<Producer> producer;
-int activemq_counter_value;
-XPLMDataRef ActiveMQ = nullptr;
-
-struct activemq_config {
-	std::string broker_address;
-	std::string topic;
-};
-
-float data_callback(
-	float                inElapsedSinceLastCall,
-	float                inElapsedTimeSinceLastFlightLoop,
-	int                  inCounter,
-	void* inRefcon);
-
-float retry_callback(
-	float                inElapsedSinceLastCall,
-	float                inElapsedTimeSinceLastFlightLoop,
-	int                  inCounter,
-	void* inRefcon);
-
-activemq_config get_activemq_config();
-
-void init_activemq();
-
-int GetActiveMQCounter(void* inRefcon);
-void SetActiveMQcounter(void* inRefcon, int inValue);
+#include "Ditto_ActiveMQ.h"
 
 PLUGIN_API int XPluginStart(
 	char* outName,
@@ -72,7 +35,7 @@ PLUGIN_API void XPluginDisable(void) {
 
 	XPLMDebugString("Disabling Ditto.\n");
 }
-PLUGIN_API int  XPluginEnable(void) {
+PLUGIN_API int XPluginEnable(void) {
 	// First, init the Dataref list when plugin is enabled
 	if (new_data.init()) {
 		// Initializing ActiveMQ library and Producer

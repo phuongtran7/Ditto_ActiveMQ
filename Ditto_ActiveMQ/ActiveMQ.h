@@ -6,9 +6,7 @@
 #include <cms/Session.h>
 #include <cms/TextMessage.h>
 #include <cms/BytesMessage.h>
-#include <cms/MessageListener.h>
 #include <cms/MessageProducer.h>
-#include <cms/MessageConsumer.h>
 #include <cms/Topic.h>
 #include "fmt/format.h"
 
