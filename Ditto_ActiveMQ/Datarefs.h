@@ -68,7 +68,7 @@ private:
 		return temp;
 	}
 
-	template<>
+	template<> 
 	std::string dataref::get_array(XPLMDataRef in_dataref, int start_index, int number_of_value)
 	{
 		// Get the current string size only first
