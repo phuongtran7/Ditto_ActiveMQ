@@ -47,6 +47,8 @@
     <TargetExt>.xpl</TargetExt>
     <GenerateManifest>false</GenerateManifest>
     <TargetName>win</TargetName>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>.\Debug\plugins\$(TargetName)\64\</OutDir>
@@ -55,6 +57,8 @@
     <TargetExt>.xpl</TargetExt>
     <GenerateManifest>false</GenerateManifest>
     <TargetName>win</TargetName>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
