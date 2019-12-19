@@ -2,9 +2,9 @@
 #include <vector>
 #include <deque>
 #include <optional>
-#include "flatbuffers/flatbuffers.h"
+//#include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/flexbuffers.h"
-#include "Schema_generated.h"
+//#include "Schema_generated.h"
 #include "Utility.h"
 #include <mutex>
 
@@ -106,14 +106,15 @@ private:
 		return std::string();
 	}
 
-	std::vector<uint8_t> get_flexbuffers_data();
-	size_t get_flexbuffers_size();
 	void set_retry_limit();
 	flexbuffers::Builder flexbuffers_builder_;
-	flatbuffers::FlatBufferBuilder flatbuffers_builder_;
+	//flatbuffers::FlatBufferBuilder flatbuffers_builder_;
 public:
-	uint8_t* get_serialized_data();
-	size_t get_serialized_size();
+	std::vector<uint8_t> get_flexbuffers_data();
+	size_t get_flexbuffers_size();
+
+	//uint8_t* get_serialized_data();
+	//size_t get_serialized_size();
 	size_t get_not_found_list_size();
 	void retry_dataref();
 	void empty_list();

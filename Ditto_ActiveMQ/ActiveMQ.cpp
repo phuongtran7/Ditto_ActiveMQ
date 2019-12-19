@@ -32,6 +32,12 @@ void Producer::send_message(uint8_t* pointer, size_t size) {
 	producer->send(msg.get());
 }
 
+void Producer::send_message(const std::vector<uint8_t>& pointer, size_t size)
+{
+	auto msg = std::unique_ptr<cms::BytesMessage>(session->createBytesMessage(pointer.data(), size));
+	producer->send(msg.get());
+}
+
 void Producer::run() {
 	try {
 		connectionFactory.reset(cms::ConnectionFactory::createCMSConnectionFactory(brokerURI));

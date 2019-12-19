@@ -25,5 +25,6 @@ public:
 	void cleanup();
 	void send_message(std::string& input);
 	void send_message(uint8_t* pointer, size_t size);
+	void send_message(const std::vector<uint8_t>& pointer, size_t size);
 	void run();
 };

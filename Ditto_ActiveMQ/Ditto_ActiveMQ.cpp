@@ -82,9 +82,8 @@ float data_callback(float inElapsedSinceLastCall,
 	int inCounter,
 	void* inRefcon)
 {
-	const auto out_data = new_data.get_serialized_data();
-	const auto size = new_data.get_serialized_size();
-
+	const auto out_data = new_data.get_flexbuffers_data();
+	const auto size = new_data.get_flexbuffers_size();
 	producer->send_message(out_data, size);
 
 	new_data.reset_builder();

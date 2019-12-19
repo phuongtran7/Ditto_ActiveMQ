@@ -6,7 +6,6 @@ size_t dataref::get_not_found_list_size() { return not_found_list_.size(); }
 
 void dataref::reset_builder() {
 	flexbuffers_builder_.Clear();
-	flatbuffers_builder_.Clear();
 }
 
 // Remove all the dataref in the dataref list
@@ -17,22 +16,6 @@ void dataref::empty_list() {
 	not_found_list_.clear();
 	reset_builder();
 }
-
-uint8_t* dataref::get_serialized_data() {
-	const auto data = flatbuffers_builder_.CreateVector(get_flexbuffers_data());
-	const auto size = get_flexbuffers_size();
-
-	Ditto::DataBuilder data_builder(flatbuffers_builder_);
-	data_builder.add_size(size);
-	data_builder.add_buffer(data);
-	const auto finished = data_builder.Finish();
-
-	flatbuffers_builder_.Finish(finished);
-
-	return flatbuffers_builder_.GetBufferPointer();
-}
-
-size_t dataref::get_serialized_size() { return flatbuffers_builder_.GetSize(); }
 
 std::vector<uint8_t> dataref::get_flexbuffers_data() {
 	// Try and get access to dataref_list_
