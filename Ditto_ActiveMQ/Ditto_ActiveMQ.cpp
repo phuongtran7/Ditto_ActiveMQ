@@ -9,9 +9,9 @@ PLUGIN_API int XPluginStart(
 	std::string signature = "phuong.x-plane.activemq.extractor";
 	std::string description = "X-Plane Plugin that send message to an ActiveMQ Broker";
 
-	strcpy_s(outName, name.length() + 1, name.c_str());
-	strcpy_s(outSig, signature.length() + 1, signature.c_str());
-	strcpy_s(outDesc, description.length() + 1, description.c_str());
+	strcpy_s(outName, 256, name.c_str());
+	strcpy_s(outSig, 256, signature.c_str());
+	strcpy_s(outDesc, 256, description.c_str());
 
 	return 1;
 }

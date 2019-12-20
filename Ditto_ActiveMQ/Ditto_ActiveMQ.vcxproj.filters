@@ -21,18 +21,12 @@
     <ClInclude Include="Datarefs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Schema_generated.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Ditto_ActiveMQ.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Schema.fbs" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
