@@ -6,6 +6,7 @@
 #include "flatbuffers/flexbuffers.h"
 #include "Utility.h"
 #include <mutex>
+#include <fmt/format.h>
 
 class dataref {
 private:

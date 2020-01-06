@@ -112,10 +112,9 @@ void dataref::retry_dataref() {
 	// another plugin later so that Ditto can search for it later after the plane
 	// loaded. XPLMFindDataRef is rather expensive so avoid using this
 	if (!not_found_list_.empty() && retry_num <= retry_limit) {
-		XPLMDebugString(("Cannot find " + std::to_string(not_found_list_.size()) + " dataref. Retrying.\n").c_str());
+		XPLMDebugString(fmt::format("Cannot find {} dataref. Retrying.\n", not_found_list_.size()).c_str());
 		for (auto it = not_found_list_.begin(); it != not_found_list_.end();) {
-			std::string s = "Retrying " + it->dataref_name + "\n";
-			XPLMDebugString(s.c_str());
+			XPLMDebugString(fmt::format("Retrying {}.\n", it->dataref_name).c_str());
 			it->dataref = XPLMFindDataRef(it->dataref_name.c_str());
 			if (it->dataref != nullptr) {
 				// Add the newly found dataref to dataref_list_
@@ -154,11 +153,9 @@ bool dataref::get_data_list() {
 				dataref_info temp_dataref_info;
 
 				temp_dataref_info.dataref_name = temp_name;
-				temp_dataref_info.name =
-					table->get_as<std::string>("name").value_or("");
+				temp_dataref_info.name = table->get_as<std::string>("name").value_or("");
 				temp_dataref_info.dataref = new_dataref;
-				temp_dataref_info.type =
-					table->get_as<std::string>("type").value_or("");
+				temp_dataref_info.type = table->get_as<std::string>("type").value_or("");
 
 				if (start != -1) {
 					temp_dataref_info.start_index = start;
