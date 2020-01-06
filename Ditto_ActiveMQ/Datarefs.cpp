@@ -94,8 +94,7 @@ size_t dataref::get_flexbuffers_size() {
 
 void dataref::set_retry_limit() {
 	try {
-		const auto input_file =
-			cpptoml::parse_file(get_plugin_path() + "Datarefs.toml");
+		const auto input_file = cpptoml::parse_file(get_plugin_path() + "Datarefs.toml");
 		retry_limit = input_file->get_as<int>("retry_limit").value_or(0);
 		retry_num = 1;
 	}
@@ -113,18 +112,19 @@ void dataref::retry_dataref() {
 	// another plugin later so that Ditto can search for it later after the plane
 	// loaded. XPLMFindDataRef is rather expensive so avoid using this
 	if (!not_found_list_.empty() && retry_num <= retry_limit) {
-		XPLMDebugString(("Cannot find " + std::to_string(not_found_list_.size()) +
-			" dataref. Retrying.\n")
-			.c_str());
-		for (auto it = not_found_list_.begin(); it != not_found_list_.end(); ++it) {
+		XPLMDebugString(("Cannot find " + std::to_string(not_found_list_.size()) + " dataref. Retrying.\n").c_str());
+		for (auto it = not_found_list_.begin(); it != not_found_list_.end();) {
 			std::string s = "Retrying " + it->dataref_name + "\n";
 			XPLMDebugString(s.c_str());
 			it->dataref = XPLMFindDataRef(it->dataref_name.c_str());
 			if (it->dataref != nullptr) {
-				// Remove the newly found dataref from the not found list
-				not_found_list_.erase(it);
-				// Add it to dataref_list_
-				dataref_list_.emplace_back(*it);
+				// Add the newly found dataref to dataref_list_
+				dataref_list_.emplace_back(std::move(*it));
+				// Remove from the not found list
+				it = not_found_list_.erase(it);
+			}
+			else {
+				++it;
 			}
 		}
 		retry_num++;
