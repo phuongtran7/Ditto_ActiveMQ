@@ -10,11 +10,18 @@
 
 class dataref {
 private:
+	enum class DatarefType {
+		STRING,
+		INT,
+		FLOAT,
+		DOUBLE
+	};
+
 	struct dataref_info {
 		std::string dataref_name{}; // Name if dataref, i.e "sim/cockpit/" something
 		std::string name{}; // Name user defined for the dataref
 		XPLMDataRef dataref{};
-		std::string type{};
+		DatarefType type{};
 		std::optional<int> start_index{};
 		std::optional<int> num_value{}; // Number of values in the array to get; starts at start_index
 	};

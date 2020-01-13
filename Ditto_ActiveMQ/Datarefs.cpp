@@ -25,7 +25,7 @@ std::vector<uint8_t> dataref::get_flexbuffers_data() {
 
 	for (const auto& dataref : dataref_list_) {
 		// String is special case so handle it first
-		if (dataref.type == "string") {
+		if (dataref.type == DatarefType::STRING) {
 			auto str = get_value<std::string>(dataref);
 			if (!str.empty()) {
 				flexbuffers_builder_.String(dataref.name.c_str(), str.c_str());
@@ -35,18 +35,29 @@ std::vector<uint8_t> dataref::get_flexbuffers_data() {
 			// If start and end index does not present that means the dataref is
 			// single value dataref
 			if (!dataref.start_index.has_value() && !dataref.num_value.has_value()) {
-				if (dataref.type == "int") {
+
+				switch (dataref.type)
+				{
+				case DatarefType::INT: {
 					flexbuffers_builder_.Int(dataref.name.c_str(), get_value<int>(dataref));
+					break;
 				}
-				else if (dataref.type == "float") {
+				case DatarefType::FLOAT: {
 					flexbuffers_builder_.Float(dataref.name.c_str(), get_value<float>(dataref));
+					break;
 				}
-				else if (dataref.type == "double") {
+				case DatarefType::DOUBLE: {
 					flexbuffers_builder_.Double(dataref.name.c_str(), get_value<double>(dataref));
+					break;
+				}
+				default:
+					break;
 				}
 			}
 			else {
-				if (dataref.type == "int") {
+				switch (dataref.type)
+				{
+				case DatarefType::INT: {
 					auto int_num = get_value<std::vector<int>>(dataref);
 					if (2 <= dataref.num_value.value() && dataref.num_value.value() <= 4) {
 						flexbuffers_builder_.FixedTypedVector(dataref.name.c_str(),
@@ -60,8 +71,9 @@ std::vector<uint8_t> dataref::get_flexbuffers_data() {
 							}
 							});
 					}
+					break;
 				}
-				else if (dataref.type == "float") {
+				case DatarefType::FLOAT: {
 					auto float_num = get_value<std::vector<float>>(dataref);
 					if (2 <= dataref.num_value.value() && dataref.num_value.value() <= 4) {
 						flexbuffers_builder_.FixedTypedVector(dataref.name.c_str(),
@@ -75,6 +87,10 @@ std::vector<uint8_t> dataref::get_flexbuffers_data() {
 							}
 							});
 					}
+					break;
+				}
+				default:
+					break;
 				}
 			}
 		}
@@ -153,8 +169,21 @@ bool dataref::get_data_list() {
 				temp_dataref_info.dataref_name = temp_name;
 				temp_dataref_info.name = table->get_as<std::string>("name").value_or("");
 				temp_dataref_info.dataref = new_dataref;
-				temp_dataref_info.type = table->get_as<std::string>("type").value_or("");
 
+				auto temp_type = table->get_as<std::string>("type").value_or("");
+				if (temp_type == "int") {
+					temp_dataref_info.type = DatarefType::INT;
+				}
+				else if (temp_type == "float") {
+					temp_dataref_info.type = DatarefType::FLOAT;
+				}
+				else if (temp_type == "double") {
+					temp_dataref_info.type = DatarefType::DOUBLE;
+				}
+				else if (temp_type == "string") {
+					temp_dataref_info.type = DatarefType::STRING;
+				}
+				
 				if (start != -1) {
 					temp_dataref_info.start_index = start;
 				}
