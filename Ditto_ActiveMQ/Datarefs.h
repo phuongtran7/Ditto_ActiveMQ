@@ -27,77 +27,74 @@ private:
 	int retry_num{};
 
 	template <typename T>
-	T get_value(XPLMDataRef in_dataref);
+	T get_value(const dataref_info& in_dataref);
 
 	template<>
-	int dataref::get_value(XPLMDataRef in_dataref)
+	int get_value(const dataref_info& in_dataref)
 	{
-		return XPLMGetDatai(in_dataref);
+		return XPLMGetDatai(in_dataref.dataref);
 	}
 
 	template<>
-	float dataref::get_value(XPLMDataRef in_dataref)
+	float get_value(const dataref_info& in_dataref)
 	{
-		return XPLMGetDataf(in_dataref);
+		return XPLMGetDataf(in_dataref.dataref);
 	}
 
 	template<>
-	double dataref::get_value(XPLMDataRef in_dataref)
+	double get_value(const dataref_info& in_dataref)
 	{
-		return XPLMGetDatad(in_dataref);
+		return XPLMGetDatad(in_dataref.dataref);
 	}
 
-	template <typename V>
-	V get_array(XPLMDataRef in_dataref, int start_index, int end_index);
-
 	template<>
-	std::vector<int> dataref::get_array(XPLMDataRef in_dataref, int start_index, int number_of_value)
+	std::vector<int> get_value(const dataref_info& in_dataref)
 	{
 		std::vector<int> temp;
-		temp.reserve(number_of_value);
-		XPLMGetDatavi(in_dataref, temp.data(), start_index, number_of_value);
+		temp.reserve(in_dataref.num_value.value());
+		XPLMGetDatavi(in_dataref.dataref, temp.data(), in_dataref.start_index.value(), in_dataref.num_value.value());
 		return temp;
 	}
 
 	template<>
-	std::vector<float> dataref::get_array(XPLMDataRef in_dataref, int start_index, int number_of_value)
+	std::vector<float> get_value(const dataref_info& in_dataref)
 	{
 		std::vector<float> temp;
-		temp.reserve(number_of_value);
-		XPLMGetDatavf(in_dataref, temp.data(), start_index, number_of_value);
+		temp.reserve(in_dataref.num_value.value());
+		XPLMGetDatavf(in_dataref.dataref, temp.data(), in_dataref.start_index.value(), in_dataref.num_value.value());
 		return temp;
 	}
 
 	template<> 
-	std::string dataref::get_array(XPLMDataRef in_dataref, int start_index, int number_of_value)
+	std::string get_value(const dataref_info& in_dataref)
 	{
 		// Get the current string size only first
-		auto current_string_size = XPLMGetDatab(in_dataref, nullptr, 0, 0);
+		auto current_string_size = XPLMGetDatab(in_dataref.dataref, nullptr, 0, 0);
 
 		// Only get data when there is something in the string dataref
 		if (current_string_size != 0) {
-			if (start_index == -1) {
+			if (!in_dataref.start_index.has_value()) {
 				// Get the whole string
 				auto temp_buffer_size = current_string_size + 1;
 				auto temp = std::make_unique<char[]>(temp_buffer_size);
-				XPLMGetDatab(in_dataref, temp.get(), 0, current_string_size);
+				XPLMGetDatab(in_dataref.dataref, temp.get(), 0, current_string_size);
 				return std::string(temp.get());
 			}
 			else {
-				if (number_of_value == -1) {
+				if (!in_dataref.num_value.has_value()) {
 					// Get the string from start_index to the end
 					auto temp_buffer_size = current_string_size + 1;
 					auto temp = std::make_unique<char[]>(temp_buffer_size);
-					XPLMGetDatab(in_dataref, temp.get(), start_index, current_string_size);
+					XPLMGetDatab(in_dataref.dataref, temp.get(), in_dataref.start_index.value(), current_string_size);
 					return std::string(temp.get());
 				}
 				else {
 					// Get part of the string starting from start_index until
 					// number_of_value is reached
-					auto temp_buffer_size = number_of_value + 1;
-					if (number_of_value <= current_string_size) {
+					auto temp_buffer_size = in_dataref.num_value.value() + 1;
+					if (in_dataref.num_value.value() <= current_string_size) {
 						auto temp = std::make_unique<char[]>(temp_buffer_size);
-						XPLMGetDatab(in_dataref, temp.get(), start_index, number_of_value);
+						XPLMGetDatab(in_dataref.dataref, temp.get(), in_dataref.start_index.value(), in_dataref.num_value.value());
 						return std::string(temp.get());
 					}
 				}

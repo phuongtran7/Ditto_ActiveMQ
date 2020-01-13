@@ -23,10 +23,10 @@ std::vector<uint8_t> dataref::get_flexbuffers_data() {
 
 	const auto map_start = flexbuffers_builder_.StartMap();
 
-	for (auto& dataref : dataref_list_) {
+	for (const auto& dataref : dataref_list_) {
 		// String is special case so handle it first
 		if (dataref.type == "string") {
-			auto str = get_array<std::string>(dataref.dataref, dataref.start_index.value_or(-1), dataref.num_value.value_or(-1));
+			auto str = get_value<std::string>(dataref);
 			if (!str.empty()) {
 				flexbuffers_builder_.String(dataref.name.c_str(), str.c_str());
 			}
@@ -36,20 +36,19 @@ std::vector<uint8_t> dataref::get_flexbuffers_data() {
 			// single value dataref
 			if (!dataref.start_index.has_value() && !dataref.num_value.has_value()) {
 				if (dataref.type == "int") {
-					flexbuffers_builder_.Int(dataref.name.c_str(), get_value<int>(dataref.dataref));
+					flexbuffers_builder_.Int(dataref.name.c_str(), get_value<int>(dataref));
 				}
 				else if (dataref.type == "float") {
-					flexbuffers_builder_.Float(dataref.name.c_str(), get_value<float>(dataref.dataref));
+					flexbuffers_builder_.Float(dataref.name.c_str(), get_value<float>(dataref));
 				}
 				else if (dataref.type == "double") {
-					flexbuffers_builder_.Double(dataref.name.c_str(), get_value<double>(dataref.dataref));
+					flexbuffers_builder_.Double(dataref.name.c_str(), get_value<double>(dataref));
 				}
 			}
 			else {
 				if (dataref.type == "int") {
-					auto int_num = get_array<std::vector<int>>(dataref.dataref, dataref.start_index.value(), dataref.num_value.value());
-					if (2 <= dataref.num_value.value() &&
-						dataref.num_value.value() <= 4) {
+					auto int_num = get_value<std::vector<int>>(dataref);
+					if (2 <= dataref.num_value.value() && dataref.num_value.value() <= 4) {
 						flexbuffers_builder_.FixedTypedVector(dataref.name.c_str(),
 							int_num.data(),
 							dataref.num_value.value());
@@ -63,9 +62,8 @@ std::vector<uint8_t> dataref::get_flexbuffers_data() {
 					}
 				}
 				else if (dataref.type == "float") {
-					auto float_num = get_array<std::vector<float>>(dataref.dataref, dataref.start_index.value(), dataref.num_value.value());
-					if (2 <= dataref.num_value.value() &&
-						dataref.num_value.value() <= 4) {
+					auto float_num = get_value<std::vector<float>>(dataref);
+					if (2 <= dataref.num_value.value() && dataref.num_value.value() <= 4) {
 						flexbuffers_builder_.FixedTypedVector(dataref.name.c_str(),
 							float_num.data(),
 							dataref.num_value.value());
