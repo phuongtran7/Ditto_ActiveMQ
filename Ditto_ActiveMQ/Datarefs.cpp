@@ -35,7 +35,6 @@ const std::vector<uint8_t>& dataref::get_flexbuffers_data() {
 			// If start and end index does not present that means the dataref is
 			// single value dataref
 			if (!dataref.start_index.has_value() && !dataref.num_value.has_value()) {
-
 				switch (dataref.type)
 				{
 				case DatarefType::INT: {

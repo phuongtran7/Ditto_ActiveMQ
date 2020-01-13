@@ -25,15 +25,16 @@ private:
 		std::optional<int> start_index{};
 		std::optional<int> num_value{}; // Number of values in the array to get; starts at start_index
 	};
+
 	std::mutex data_lock;
 	std::vector<dataref_info> dataref_list_;
 	std::vector<dataref_info> not_found_list_;
 	flexbuffers::Builder flexbuffers_builder_;
-	bool get_data_list();
 	int retry_limit{};
 	int retry_num{};
 
 private:
+	bool get_data_list();
 	std::vector<dataref_info>& get_list();
 	void set_retry_limit();
 
