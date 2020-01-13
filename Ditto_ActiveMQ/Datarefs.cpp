@@ -1,6 +1,6 @@
 #include "Datarefs.h"
 
-std::vector<dataref::dataref_info> dataref::get_list() { return dataref_list_; }
+std::vector<dataref::dataref_info>& dataref::get_list() { return dataref_list_; }
 
 size_t dataref::get_not_found_list_size() { return not_found_list_.size(); }
 
@@ -17,7 +17,7 @@ void dataref::empty_list() {
 	reset_builder();
 }
 
-std::vector<uint8_t> dataref::get_flexbuffers_data() {
+const std::vector<uint8_t>& dataref::get_flexbuffers_data() {
 	// Try and get access to dataref_list_
 	std::scoped_lock<std::mutex> guard(data_lock);
 

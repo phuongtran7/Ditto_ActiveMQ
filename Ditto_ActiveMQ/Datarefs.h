@@ -28,10 +28,14 @@ private:
 	std::mutex data_lock;
 	std::vector<dataref_info> dataref_list_;
 	std::vector<dataref_info> not_found_list_;
-	std::vector<dataref_info> get_list();
+	flexbuffers::Builder flexbuffers_builder_;
 	bool get_data_list();
 	int retry_limit{};
 	int retry_num{};
+
+private:
+	std::vector<dataref_info>& get_list();
+	void set_retry_limit();
 
 	template <typename T>
 	T get_value(const dataref_info& in_dataref);
@@ -110,10 +114,8 @@ private:
 		return std::string();
 	}
 
-	void set_retry_limit();
-	flexbuffers::Builder flexbuffers_builder_;
 public:
-	std::vector<uint8_t> get_flexbuffers_data();
+	const std::vector<uint8_t>& get_flexbuffers_data();
 	size_t get_flexbuffers_size();
 	size_t get_not_found_list_size();
 	void retry_dataref();
