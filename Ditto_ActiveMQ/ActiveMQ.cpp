@@ -48,7 +48,7 @@ void Producer::run() {
 		producer->setDeliveryMode(cms::DeliveryMode::NON_PERSISTENT);
 		connection->start();
 	}
-	catch (cms::CMSException& e) {
+	catch (cms::CMSException & e) {
 		//e.printStackTrace();
 		XPLMDebugString(e.what());
 	}

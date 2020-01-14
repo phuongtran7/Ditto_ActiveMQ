@@ -1,8 +1,10 @@
 #include "Datarefs.h"
 
-std::vector<dataref::dataref_info>& dataref::get_list() { return dataref_list_; }
+using DataType = std::variant<int, float, double, std::string, std::vector<int>, std::vector<float>>;
 
-size_t dataref::get_not_found_list_size() { return not_found_list_.size(); }
+size_t dataref::get_not_found_list_size() {
+	return not_found_list_.size();
+}
 
 void dataref::reset_builder() {
 	flexbuffers_builder_.Clear();
@@ -24,74 +26,62 @@ const std::vector<uint8_t>& dataref::get_flexbuffers_data() {
 	const auto map_start = flexbuffers_builder_.StartMap();
 
 	for (const auto& dataref : dataref_list_) {
-		// String is special case so handle it first
-		if (dataref.type == DatarefType::STRING) {
-			auto str = get_value<std::string>(dataref);
-			if (!str.empty()) {
-				flexbuffers_builder_.String(dataref.name.c_str(), str.c_str());
-			}
-		}
-		else {
-			// If start and end index does not present that means the dataref is
-			// single value dataref
-			if (!dataref.start_index.has_value() && !dataref.num_value.has_value()) {
-				switch (dataref.type)
-				{
-				case DatarefType::INT: {
-					flexbuffers_builder_.Int(dataref.name.c_str(), get_value<int>(dataref));
-					break;
+		switch (dataref.type) {
+		case DatarefType::INT: {
+			if (dataref.start_index.has_value()) {
+				// If start index exist then it's an array
+				auto int_num = get_value<std::vector<int>>(dataref);
+				if (2 <= dataref.num_value.value() && dataref.num_value.value() <= 4) {
+					flexbuffers_builder_.FixedTypedVector(dataref.name.c_str(),
+						int_num.data(),
+						dataref.num_value.value());
 				}
-				case DatarefType::FLOAT: {
-					flexbuffers_builder_.Float(dataref.name.c_str(), get_value<float>(dataref));
-					break;
-				}
-				case DatarefType::DOUBLE: {
-					flexbuffers_builder_.Double(dataref.name.c_str(), get_value<double>(dataref));
-					break;
-				}
-				default:
-					break;
+				else {
+					flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
+						for (auto& i : int_num) {
+							flexbuffers_builder_.Int(i);
+						}
+						});
 				}
 			}
 			else {
-				switch (dataref.type)
-				{
-				case DatarefType::INT: {
-					auto int_num = get_value<std::vector<int>>(dataref);
-					if (2 <= dataref.num_value.value() && dataref.num_value.value() <= 4) {
-						flexbuffers_builder_.FixedTypedVector(dataref.name.c_str(),
-							int_num.data(),
-							dataref.num_value.value());
-					}
-					else {
-						flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
-							for (auto& i : int_num) {
-								flexbuffers_builder_.Int(i);
-							}
-							});
-					}
-					break;
+				// Just single value
+				auto return_value = get_value<int>(dataref);
+				flexbuffers_builder_.Int(dataref.name.c_str(), return_value);
+			}
+			break;
+		}
+		case DatarefType::FLOAT: {
+			if (dataref.start_index.has_value()) {
+				auto float_num = get_value<std::vector<float>>(dataref);
+				if (2 <= dataref.num_value.value() && dataref.num_value.value() <= 4) {
+					flexbuffers_builder_.FixedTypedVector(dataref.name.c_str(),
+						float_num.data(),
+						dataref.num_value.value());
 				}
-				case DatarefType::FLOAT: {
-					auto float_num = get_value<std::vector<float>>(dataref);
-					if (2 <= dataref.num_value.value() && dataref.num_value.value() <= 4) {
-						flexbuffers_builder_.FixedTypedVector(dataref.name.c_str(),
-							float_num.data(),
-							dataref.num_value.value());
-					}
-					else {
-						flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
-							for (auto& i : float_num) {
-								flexbuffers_builder_.Float(i);
-							}
-							});
-					}
-					break;
-				}
-				default:
-					break;
+				else {
+					flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
+						for (auto& i : float_num) {
+							flexbuffers_builder_.Float(i);
+						}
+						});
 				}
 			}
+			else {
+				flexbuffers_builder_.Float(dataref.name.c_str(), get_value<float>(dataref));
+			}
+			break;
+		}
+		case DatarefType::DOUBLE: {
+			flexbuffers_builder_.Double(dataref.name.c_str(), get_value<double>(dataref));
+			break;
+		}
+		case DatarefType::STRING: {
+			flexbuffers_builder_.String(dataref.name.c_str(), get_value<std::string>(dataref).c_str());
+			break;
+		}
+		default:
+			break;
 		}
 	}
 
@@ -182,7 +172,7 @@ bool dataref::get_data_list() {
 				else if (temp_type == "string") {
 					temp_dataref_info.type = DatarefType::STRING;
 				}
-				
+
 				if (start != -1) {
 					temp_dataref_info.start_index = start;
 				}
