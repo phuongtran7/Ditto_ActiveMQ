@@ -7,7 +7,7 @@
 #include "Utility.h"
 #include <mutex>
 #include <fmt/format.h>
-#include <variant>
+#include <type_traits>
 
 class dataref {
 private:
@@ -98,7 +98,6 @@ private:
 			return std::string();
 		}
 	}
-
 
 public:
 	const std::vector<uint8_t>& get_flexbuffers_data();

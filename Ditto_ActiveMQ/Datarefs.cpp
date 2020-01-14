@@ -1,7 +1,5 @@
 #include "Datarefs.h"
 
-using DataType = std::variant<int, float, double, std::string, std::vector<int>, std::vector<float>>;
-
 size_t dataref::get_not_found_list_size() {
 	return not_found_list_.size();
 }
