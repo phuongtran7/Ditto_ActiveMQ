@@ -23,75 +23,71 @@ const std::vector<uint8_t>& dataref::get_flexbuffers_data() {
 
 	const auto map_start = flexbuffers_builder_.StartMap();
 
+
 	for (const auto& dataref : dataref_list_) {
-		// String is special case so handle it first
-		if (dataref.type == DatarefType::STRING) {
-			auto str = get_value<std::string>(dataref);
-			if (!str.empty()) {
-				flexbuffers_builder_.String(dataref.name.c_str(), str.c_str());
-			}
+
+		auto return_value = get_dataref_value(dataref);
+
+		// Add the return value to approriate flexbuffers type
+		auto index = return_value.index();
+		switch (index) {
+			// std::variant<int, float, double, std::string, std::vector<int>, std::vector<float>>
+		case 0: {
+			// Holding a int value
+			flexbuffers_builder_.Int(dataref.name.c_str(), std::get<int>(return_value));
+			break;
 		}
-		else {
-			// If start and end index does not present that means the dataref is
-			// single value dataref
-			if (!dataref.start_index.has_value() && !dataref.num_value.has_value()) {
-				switch (dataref.type)
-				{
-				case DatarefType::INT: {
-					flexbuffers_builder_.Int(dataref.name.c_str(), get_value<int>(dataref));
-					break;
-				}
-				case DatarefType::FLOAT: {
-					flexbuffers_builder_.Float(dataref.name.c_str(), get_value<float>(dataref));
-					break;
-				}
-				case DatarefType::DOUBLE: {
-					flexbuffers_builder_.Double(dataref.name.c_str(), get_value<double>(dataref));
-					break;
-				}
-				default:
-					break;
-				}
+		case 1: {
+			// Holding a float value
+			flexbuffers_builder_.Float(dataref.name.c_str(), std::get<float>(return_value));
+			break;
+		}
+		case 2: {
+			// Holding a double value
+			flexbuffers_builder_.Double(dataref.name.c_str(), std::get<double>(return_value));
+			break;
+		}
+		case 3: {
+			// Holding a string
+			flexbuffers_builder_.String(dataref.name.c_str(), std::get<std::string>(return_value).c_str());
+			break;
+		}
+		case 4: {
+			// Holding a vector of int
+			auto int_num = std::get<std::vector<int>>(return_value);
+			if (2 <= dataref.num_value.value() && dataref.num_value.value() <= 4) {
+				flexbuffers_builder_.FixedTypedVector(dataref.name.c_str(),
+					int_num.data(),
+					dataref.num_value.value());
 			}
 			else {
-				switch (dataref.type)
-				{
-				case DatarefType::INT: {
-					auto int_num = get_value<std::vector<int>>(dataref);
-					if (2 <= dataref.num_value.value() && dataref.num_value.value() <= 4) {
-						flexbuffers_builder_.FixedTypedVector(dataref.name.c_str(),
-							int_num.data(),
-							dataref.num_value.value());
+				flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
+					for (auto& i : int_num) {
+						flexbuffers_builder_.Int(i);
 					}
-					else {
-						flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
-							for (auto& i : int_num) {
-								flexbuffers_builder_.Int(i);
-							}
-							});
-					}
-					break;
-				}
-				case DatarefType::FLOAT: {
-					auto float_num = get_value<std::vector<float>>(dataref);
-					if (2 <= dataref.num_value.value() && dataref.num_value.value() <= 4) {
-						flexbuffers_builder_.FixedTypedVector(dataref.name.c_str(),
-							float_num.data(),
-							dataref.num_value.value());
-					}
-					else {
-						flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
-							for (auto& i : float_num) {
-								flexbuffers_builder_.Float(i);
-							}
-							});
-					}
-					break;
-				}
-				default:
-					break;
-				}
+					});
 			}
+			break;
+		}
+		case 5: {
+			// Holding a vector of float
+			auto float_num = std::get<std::vector<float>>(return_value);
+			if (2 <= dataref.num_value.value() && dataref.num_value.value() <= 4) {
+				flexbuffers_builder_.FixedTypedVector(dataref.name.c_str(),
+					float_num.data(),
+					dataref.num_value.value());
+			}
+			else {
+				flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
+					for (auto& i : float_num) {
+						flexbuffers_builder_.Float(i);
+					}
+					});
+			}
+			break;
+		}
+		default:
+			break;
 		}
 	}
 
@@ -115,6 +111,82 @@ void dataref::set_retry_limit() {
 		XPLMDebugString(ex.what());
 		XPLMDebugString("\n");
 	}
+}
+
+// Get the data depending on what type of the dataref is
+// Return a std::variant<int, float, double, std::string, std::vector<int>, std::vector<float>>
+DataType dataref::get_dataref_value(const dataref_info& in_dataref)
+{
+	// Handle whether the dataref is a string or not first
+	if (in_dataref.type == DatarefType::STRING) {
+		// Get the current string size only first
+		auto current_string_size = XPLMGetDatab(in_dataref.dataref, nullptr, 0, 0);
+
+		// Only get data when there is something in the string dataref
+		if (current_string_size != 0) {
+			if (!in_dataref.start_index.has_value()) {
+				// Get the whole string
+				auto temp_buffer_size = current_string_size + 1;
+				auto temp = std::make_unique<char[]>(temp_buffer_size);
+				XPLMGetDatab(in_dataref.dataref, temp.get(), 0, current_string_size);
+				return std::string(temp.get());
+			}
+			else {
+				if (!in_dataref.num_value.has_value()) {
+					// Get the string from start_index to the end
+					auto temp_buffer_size = current_string_size + 1;
+					auto temp = std::make_unique<char[]>(temp_buffer_size);
+					XPLMGetDatab(in_dataref.dataref, temp.get(), in_dataref.start_index.value(), current_string_size);
+					return std::string(temp.get());
+				}
+				else {
+					// Get part of the string starting from start_index until
+					// number_of_value is reached
+					auto temp_buffer_size = in_dataref.num_value.value() + 1;
+					if (in_dataref.num_value.value() <= current_string_size) {
+						auto temp = std::make_unique<char[]>(temp_buffer_size);
+						XPLMGetDatab(in_dataref.dataref, temp.get(), in_dataref.start_index.value(), in_dataref.num_value.value());
+						return std::string(temp.get());
+					}
+				}
+			}
+		}
+		return std::string();
+	}
+	else {
+		switch (in_dataref.type)
+		{
+		case DatarefType::INT: {
+			// If start and end index present then it's an array
+			if (in_dataref.start_index.has_value()) {
+				std::vector<int> temp;
+				temp.reserve(in_dataref.num_value.value());
+				XPLMGetDatavi(in_dataref.dataref, temp.data(), in_dataref.start_index.value(), in_dataref.num_value.value());
+				return temp;
+			}
+			// Else return single value
+			return XPLMGetDatai(in_dataref.dataref);
+		}
+		case DatarefType::FLOAT: {
+			// If start and end index present then it's an array
+			if (in_dataref.start_index.has_value()) {
+				std::vector<float> temp;
+				temp.reserve(in_dataref.num_value.value());
+				XPLMGetDatavf(in_dataref.dataref, temp.data(), in_dataref.start_index.value(), in_dataref.num_value.value());
+				return temp;
+			}
+			// Else return single value
+			return XPLMGetDataf(in_dataref.dataref);
+		}
+		case DatarefType::DOUBLE: {
+			// Double only has single value in X-Plane
+			return XPLMGetDatad(in_dataref.dataref);
+		}
+		default:
+			return DataType{};
+		}
+	}
+	return DataType{};
 }
 
 void dataref::retry_dataref() {
