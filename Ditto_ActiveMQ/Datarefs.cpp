@@ -27,12 +27,12 @@ const std::vector<uint8_t>& dataref::get_flexbuffers_data() {
 
 	for (const auto& dataref : dataref_list_) {
 
+		// std::variant<int, float, double, std::string, std::vector<int>, std::vector<float>>
 		auto return_value = get_dataref_value(dataref);
 
-		// Add the return value to approriate flexbuffers type
+		// Add the return value to approriate flexbuffers type depending on what the return_value is holding
 		auto index = return_value.index();
 		switch (index) {
-			// std::variant<int, float, double, std::string, std::vector<int>, std::vector<float>>
 		case 0: {
 			// Holding a int value
 			flexbuffers_builder_.Int(dataref.name.c_str(), std::get<int>(return_value));
