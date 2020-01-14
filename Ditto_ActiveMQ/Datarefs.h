@@ -9,8 +9,6 @@
 #include <fmt/format.h>
 #include <variant>
 
-using DataType = std::variant<int, float, double, std::string, std::vector<int>, std::vector<float>>;
-
 class dataref {
 private:
 	enum class DatarefType {
@@ -40,7 +38,7 @@ private:
 	bool get_data_list();
 	std::vector<dataref_info>& get_list();
 	void set_retry_limit();
-	DataType get_dataref_value(const dataref_info& in_dataref);
+	std::variant<int, float, double, std::string, std::vector<int>, std::vector<float>> get_dataref_value(const dataref_info& in_dataref);
 
 public:
 	const std::vector<uint8_t>& get_flexbuffers_data();

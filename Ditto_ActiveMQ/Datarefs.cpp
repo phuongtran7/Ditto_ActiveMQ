@@ -1,8 +1,14 @@
 #include "Datarefs.h"
 
-std::vector<dataref::dataref_info>& dataref::get_list() { return dataref_list_; }
+using DataType = std::variant<int, float, double, std::string, std::vector<int>, std::vector<float>>;
 
-size_t dataref::get_not_found_list_size() { return not_found_list_.size(); }
+std::vector<dataref::dataref_info>& dataref::get_list() { 
+	return dataref_list_;
+}
+
+size_t dataref::get_not_found_list_size() {
+	return not_found_list_.size();
+}
 
 void dataref::reset_builder() {
 	flexbuffers_builder_.Clear();
@@ -22,7 +28,6 @@ const std::vector<uint8_t>& dataref::get_flexbuffers_data() {
 	std::scoped_lock<std::mutex> guard(data_lock);
 
 	const auto map_start = flexbuffers_builder_.StartMap();
-
 
 	for (const auto& dataref : dataref_list_) {
 
