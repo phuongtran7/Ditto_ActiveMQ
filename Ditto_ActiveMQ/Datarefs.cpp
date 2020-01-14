@@ -2,10 +2,6 @@
 
 using DataType = std::variant<int, float, double, std::string, std::vector<int>, std::vector<float>>;
 
-std::vector<dataref::dataref_info>& dataref::get_list() { 
-	return dataref_list_;
-}
-
 size_t dataref::get_not_found_list_size() {
 	return not_found_list_.size();
 }

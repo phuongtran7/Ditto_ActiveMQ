@@ -35,6 +35,7 @@ PLUGIN_API void XPluginDisable(void) {
 
 	XPLMDebugString("Disabling Ditto.\n");
 }
+
 PLUGIN_API int XPluginEnable(void) {
 	// First, init the Dataref list when plugin is enabled
 	if (new_data.init()) {
@@ -75,6 +76,7 @@ PLUGIN_API int XPluginEnable(void) {
 	XPLMDebugString("Enabling Ditto.\n");
 	return 1;
 }
+
 PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inParam) { }
 
 float data_callback(float inElapsedSinceLastCall,

@@ -36,7 +36,6 @@ private:
 
 private:
 	bool get_data_list();
-	std::vector<dataref_info>& get_list();
 	void set_retry_limit();
 	std::variant<int, float, double, std::string, std::vector<int>, std::vector<float>> get_dataref_value(const dataref_info& in_dataref);
 
