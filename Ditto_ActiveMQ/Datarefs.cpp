@@ -17,6 +17,15 @@ void dataref::empty_list() {
 	reset_builder();
 }
 
+dataref::dataref(const std::string& topic, const std::string& address, const std::string& config) :
+	topic_(topic),
+	address_(address),
+	config_file_path_(config),
+	dataref_list_{},
+	not_found_list_{}
+{
+}
+
 const std::vector<uint8_t>& dataref::get_flexbuffers_data() {
 	// Try and get access to dataref_list_
 	std::scoped_lock<std::mutex> guard(data_lock);
@@ -95,7 +104,7 @@ size_t dataref::get_flexbuffers_size() {
 
 void dataref::set_retry_limit() {
 	try {
-		const auto input_file = cpptoml::parse_file(get_plugin_path() + "Datarefs.toml");
+		const auto input_file = cpptoml::parse_file(config_file_path_);
 		retry_limit = input_file->get_as<int>("retry_limit").value_or(0);
 		retry_num = 1;
 	}
@@ -103,6 +112,12 @@ void dataref::set_retry_limit() {
 		XPLMDebugString(ex.what());
 		XPLMDebugString("\n");
 	}
+}
+
+void dataref::start_activemq()
+{
+	producer_ = std::make_unique<Producer>(address_, topic_);
+	producer_->run();
 }
 
 void dataref::retry_dataref() {
@@ -137,11 +152,9 @@ void dataref::retry_dataref() {
 
 bool dataref::get_data_list() {
 	try {
-		const auto input_file =
-			cpptoml::parse_file(get_plugin_path() + "Datarefs.toml");
-		// Create a list of all the Data table in the toml file
-		const auto data_list = input_file->get_table_array("Data");
-
+		const auto input_file = cpptoml::parse_file(config_file_path_);
+		// Get the list of all the dataref that this instance is handling
+		const auto data_list = input_file->get_table_array(topic_);
 		if (data_list != nullptr) {
 			// Loop through all the tables
 			for (const auto& table : *data_list) {
@@ -205,10 +218,27 @@ bool dataref::get_data_list() {
 	}
 }
 
-bool dataref::init() {
+bool dataref::init()
+{
 	if (get_data_list()) {
+		start_activemq();
 		set_retry_limit();
 		return true;
 	}
 	return false;
+}
+
+void dataref::send_data()
+{
+	const auto out_data = get_flexbuffers_data();
+	const auto size = get_flexbuffers_size();
+	producer_->send_message(out_data, size);
+	reset_builder();
+}
+
+void dataref::shutdown()
+{
+	empty_list();
+	producer_->cleanup();
+	producer_.reset();
 }

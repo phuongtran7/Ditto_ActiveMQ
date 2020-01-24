@@ -21,163 +21,89 @@ PLUGIN_API void	XPluginStop(void)
 	XPLMDebugString("Stopping Ditto.\n");
 }
 
-PLUGIN_API void XPluginDisable(void) {
-	new_data.empty_list();
+PLUGIN_API void XPluginDisable(void)
+{
+	// Shutting down each instance of dataref along with the ActiveMQ connection
+	for (const auto& item : topic_vector) {
+		item->shutdown();
+	}
+
 	if (data_flight_loop_id != nullptr) {
 		XPLMDestroyFlightLoop(data_flight_loop_id);
 	}
-	if (retry_flight_loop_id != nullptr) {
-		XPLMDestroyFlightLoop(retry_flight_loop_id);
-	}
 
-	producer->cleanup();
-	producer.reset();
+	// Shutting down ActiveMQ library
+	activemq::library::ActiveMQCPP::shutdownLibrary();
 
 	XPLMDebugString("Disabling Ditto.\n");
 }
 
 PLUGIN_API int XPluginEnable(void) {
-	// First, init the Dataref list when plugin is enabled
-	if (new_data.init()) {
-		// Initializing ActiveMQ library and Producer
-		init_activemq();
-		auto config = get_activemq_config();
-		producer = std::make_unique<Producer>(config.broker_address, config.topic);
-		producer->run();
 
-		// If there are some datarefs we cannot find when plugin starts up
-		if (new_data.get_not_found_list_size() != 0) {
-			// Register a new flight loop to retry finding datarefs
-			XPLMCreateFlightLoop_t retry_params{ sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, retry_callback, nullptr };
-			retry_flight_loop_id = XPLMCreateFlightLoop(&retry_params);
-			if (retry_flight_loop_id != nullptr)
-			{
-				XPLMScheduleFlightLoop(retry_flight_loop_id, 5, true);
-			}
-		}
+	// First, look for the config file name in the folder
+	auto config = get_config_file_path();
 
-		// Register flight loop for sending data to broker
-		XPLMCreateFlightLoop_t data_params{ sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, data_callback, nullptr };
-		data_flight_loop_id = XPLMCreateFlightLoop(&data_params);
-		if (data_flight_loop_id == nullptr)
-		{
-			XPLMDebugString("Cannot create flight loop. Exiting Ditto.\n");
+	if (config.empty()) {
+		XPLMDebugString("Cannot find configration \".toml\" file. Shutting down.\n");
+		return 0;
+	}
+
+	// Init ActiveMQ
+	activemq::library::ActiveMQCPP::initializeLibrary();
+
+	const auto input_file = cpptoml::parse_file(config);
+
+	// Get the topics
+	auto topics = input_file->get_array_of<std::string>("topic");
+	auto address = input_file->get_as<std::string>("address").value_or("failover:(tcp://192.168.72.249:61616)");
+
+	for (const auto& topic : *topics)
+	{
+		auto dataref_instance = std::make_unique<dataref>(topic, address, config);
+		if (!dataref_instance->init()) {
+			XPLMDebugString(fmt::format("Cannot init topic {}. Shutting down.\n", topic).c_str());
 			return 0;
 		}
-		else {
-			XPLMScheduleFlightLoop(data_flight_loop_id, -1, true);
-		}
+		topic_vector.emplace_back(std::move(dataref_instance));
+	}
+
+	// Register flight loop for sending data to broker
+	XPLMCreateFlightLoop_t data_params{ sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, data_callback, nullptr };
+	data_flight_loop_id = XPLMCreateFlightLoop(&data_params);
+	if (data_flight_loop_id == nullptr)
+	{
+		XPLMDebugString("Cannot create flight loop. Exiting Ditto.\n");
+		return 0;
 	}
 	else {
-		XPLMDebugString("Cannot find \"Datarefs.toml\" or \"Datarefs.toml\" is empty. Exiting.\n");
-		return 0;
+		XPLMScheduleFlightLoop(data_flight_loop_id, -1, true);
 	}
 
 	XPLMDebugString("Enabling Ditto.\n");
 	return 1;
 }
 
-PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inParam) { }
+PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, int inMsg, void* inParam) {}
+
+std::string get_config_file_path() {
+	std::string config_file_path{};
+	auto current_path = get_plugin_path();
+	for (const auto& entry : std::filesystem::directory_iterator(current_path)) {
+		auto ext = entry.path().extension().generic_string();
+		if (ext == ".toml") {
+			config_file_path = entry.path().generic_string();
+		}
+	}
+	return config_file_path;
+}
 
 float data_callback(float inElapsedSinceLastCall,
 	float inElapsedTimeSinceLastFlightLoop,
 	int inCounter,
 	void* inRefcon)
 {
-	const auto out_data = new_data.get_flexbuffers_data();
-	const auto size = new_data.get_flexbuffers_size();
-	producer->send_message(out_data, size);
-
-	new_data.reset_builder();
+	for (const auto& item : topic_vector) {
+		item->send_data();
+	}
 	return -1.0;
-}
-
-float retry_callback(float inElapsedSinceLastCall,
-	float inElapsedTimeSinceLastFlightLoop,
-	int inCounter,
-	void* inRefcon)
-{
-	if (new_data.get_not_found_list_size() != 0) {
-		new_data.retry_dataref();
-		return 5.0; // Retry after every 5 seconds.
-	}
-	else {
-		// No more uninitialized dataref to process
-		return 0.0;
-	}
-}
-
-activemq_config get_activemq_config() {
-	try
-	{
-		const auto input_file = cpptoml::parse_file(get_plugin_path() + "Datarefs.toml");
-		return activemq_config{
-			input_file->get_as<std::string>("address").value_or("failover:(tcp://192.168.72.249:61616)"),
-			input_file->get_as<std::string>("topic").value_or("XP-Ditto")
-		};
-	}
-	catch (const cpptoml::parse_exception & ex)
-	{
-		XPLMDebugString(ex.what());
-		XPLMDebugString("\n");
-		return activemq_config{
-			"failover:(tcp://192.168.72.249:61616)",
-			"XP-Ditto"
-		};
-	}
-}
-
-//Due to ActiveMQ requires that each process has to call ActiveMQCPP::initializeLibrary and ActiveMQCPP::shutdownLibrary,
-//when there are multiple plugins that use ActiveMQ running at the same time, it is required to keep track of which plugin
-//should call the init and shutdown function.
-//
-//Each plugin should check whether the "activemq/initialized" dataref exists.
-//If the dataref exists then there is already other plugin that was enable before the plugin and the call to ActiveMQCPP::initializeLibrary is already
-//performed. So it should not call that function again.
-//
-//If the dataref does not exist then the plugin is the first one enabled that needs to use ActiveMQ. In that case, the plugin will create the "activemq/initialized" dataref,
-//init it to one and then call ActiveMQCPP::initializeLibrary.
-//
-//It's unfortunate that we cannot control the shutdown process as X-Plane API will not work if the plugin is entering disabled state.
-//So we currently cannot synchronize the shutdown process.
-//The current workaround that is to have a cleanup plugin, which should be the last one to be unloaded by X-Plane and call ActiveMQCPP::shutdownLibrary
-//from there.
-void init_activemq()
-{
-	if ((ActiveMQ = XPLMFindDataRef("activemq/initialized")) != nullptr) {
-		// If the dataref exists then there is another plugin that calls ActiveMQCPP::initializeLibrary already
-		// So we should not call it again.
-		// We will just increase the dataref by one to inform that we are participating in using ActiveMQ
-		auto current = XPLMGetDatai(ActiveMQ);
-		XPLMSetDatai(ActiveMQ, (current + 1));
-	}
-	else {
-		// Init ActiveMQ
-		activemq::library::ActiveMQCPP::initializeLibrary();
-
-		// Create the dataref to inform all other plugin that comes later
-		ActiveMQ = XPLMRegisterDataAccessor("activemq/initialized",
-			xplmType_Int,
-			1,
-			GetActiveMQCounter, SetActiveMQcounter,
-			nullptr, nullptr,
-			nullptr, nullptr,
-			nullptr, nullptr,
-			nullptr, nullptr,
-			nullptr, nullptr,
-			nullptr, nullptr);
-
-		// Initialize our counter to one
-		XPLMSetDatai(ActiveMQ, 1);
-	}
-}
-
-int GetActiveMQCounter(void* inRefcon)
-{
-	return activemq_counter_value;
-}
-
-void SetActiveMQcounter(void* inRefcon, int inValue)
-{
-	activemq_counter_value = inValue;
 }

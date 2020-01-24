@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ActiveMQ.h"
 #include <vector>
 #include <deque>
 #include <optional>
@@ -27,6 +28,9 @@ private:
 		std::optional<int> num_value{}; // Number of values in the array to get; starts at start_index
 	};
 
+	std::string topic_;
+	std::string address_;
+	std::string config_file_path_;
 	std::mutex data_lock;
 	std::vector<dataref_info> dataref_list_;
 	std::vector<dataref_info> not_found_list_;
@@ -34,9 +38,18 @@ private:
 	int retry_limit{};
 	int retry_num{};
 
+	std::unique_ptr<Producer> producer_;
+
 private:
 	bool get_data_list();
 	void set_retry_limit();
+	void start_activemq();
+	const std::vector<uint8_t>& get_flexbuffers_data();
+	size_t get_flexbuffers_size();
+	size_t get_not_found_list_size();
+	void retry_dataref();
+	void empty_list();
+	void reset_builder();
 
 	template<typename T, std::enable_if_t<std::is_same_v<T, int>, int> = 0>
 	decltype(auto) get_value(const dataref_info& in_dataref) {
@@ -107,11 +120,8 @@ private:
 	}
 
 public:
-	const std::vector<uint8_t>& get_flexbuffers_data();
-	size_t get_flexbuffers_size();
-	size_t get_not_found_list_size();
-	void retry_dataref();
-	void empty_list();
-	void reset_builder();
+	explicit dataref(const std::string& topic, const std::string& address, const std::string& config);
 	bool init();
+	void send_data();
+	void shutdown();
 };
