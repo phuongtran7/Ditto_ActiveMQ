@@ -22,8 +22,8 @@ If you don't want to compile the plugin by yourself, you can head over the <a hr
 ### Start up
 1. Copy the compiled Ditto into aircraft plugin folder in X-Plane. For example, `X_Plane root/Aircraft/Laminar Research/Boeing B737-800/plugins/`.
 2. Copy `Datarefs.toml` file into Ditto folder. For example, `X_Plane root/Aircraft/Laminar Research/Boeing B737-800/plugins/Ditto/`. 
-3. Define the address of the ActiveMQ server and the topic that Ditto should publish under.
-4. Define all the datarefs that the plugin should send the value out. Ditto has the ability to retry finding the dataref if that dataref is created by another plugin that loaded after Ditto. However, looking for dataref is a rather exenpsive task, so Ditto only retrying after every 5 seconds. One way to work around that is making Ditto load last by renaming the Ditto plugin folder, for example `zDitto` and copy it into aircraft folder. This way Ditto will be loaded last, after other plugins finish publishing datarefs.
+3. Define the address of the ActiveMQ server and the topics that Ditto should publish under.
+4. Define all the datarefs that the plugin should send the value out.
 5. Start X-Plane.
 
 ### Modifying datarefs/endpoints
@@ -32,21 +32,18 @@ If you don't want to compile the plugin by yourself, you can head over the <a hr
 3. Modify `Datarefs.toml`.
 4. Re-enable Ditto and unpause X-Plane if necessary.
 
-## Limitations
-1. Even though Ditto supports multiple clients connecting at the same time, there is currently no way to specify which client should receive which values. All clients will be receiving the same data that is output by Ditto.
-
 ## Code samples
 1. Example `Datarefs.toml` content:
 ```
 # Setting address and topic
 address = "failover:(tcp://192.168.72.249:61616)"
-topic = "XP-Data"
 
-# Setting the maximum number of retry. Zero to disable retry.
-retry_limit = 5 // Retry 5 times. Each time after 5 seconds
+# Define the name of the topic(s) that the plugin will send the data to
+# Every datarefs define under the same topic name will be grouped and send out to that particular topic
+topic = ["Data", "Another"]
 
 # Getting a float dataref
-[[Data]] # Each dataref is an Data table
+[[Data]] # Name of the topic that this dataref should be published under
 name = "airspeed" # User specify name of the dataref, which will be used to access data later
 string = "sim/flightmodel/position/indicated_airspeed" # Dataref
 type = "float" # Type of the dataref. Can be either "int", "float" or "char"
@@ -64,20 +61,26 @@ num_value = 2 # Number of value after the start_index Ditto should read.
 [[Data]]
 name = "legs_full"
 string = "laminar/B738/fms/legs"
-type = "char"
+type = "string"
 
 # Getting a string dataref with an offset
 [[Data]]
 name = "legs_offset"
 string = "laminar/B738/fms/legs"
-type = "char"
+type = "string"
 start_index = 2
 
 # Getting part of string dataref
 [[Data]]
 name = "legs_part"
 string = "laminar/B738/fms/legs"
-type = "char"
+type = "string"
 start_index = 2
 num_value = 10
+
+# Getting a string dataref and send it to "Another" topic instead of "Data" topic
+[[Another]]
+name = "legs_full"
+string = "laminar/B738/fms/legs"
+type = "string"
 ```
