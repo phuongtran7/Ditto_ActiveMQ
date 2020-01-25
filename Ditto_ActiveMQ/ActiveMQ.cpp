@@ -46,6 +46,7 @@ void Producer::run() {
 		destination.reset(session->createTopic(destURI));
 		producer.reset(session->createProducer(destination.get()));
 		producer->setDeliveryMode(cms::DeliveryMode::NON_PERSISTENT);
+		producer->setTimeToLive(1800000); // 30 minutes time to live message
 		connection->start();
 	}
 	catch (cms::CMSException & e) {
