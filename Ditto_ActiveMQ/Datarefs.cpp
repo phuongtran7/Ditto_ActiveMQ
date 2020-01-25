@@ -228,7 +228,7 @@ bool dataref::init()
 	return false;
 }
 
-void dataref::send_data()
+void dataref::update()
 {
 	const auto out_data = get_flexbuffers_data();
 	const auto size = get_flexbuffers_size();

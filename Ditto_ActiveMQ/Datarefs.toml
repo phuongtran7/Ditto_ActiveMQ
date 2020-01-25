@@ -1,10 +1,15 @@
-# Setting the maximum number of retry. Zero to disable retry.
-retry_limit = 5 # Retry 5 times. Each time after 5 seconds
-address = "failover:(tcp://192.168.72.249:61616)" # Broker address
-topic = "XP-S76-Debug" # Name of topic
+# Setting address and topic
+address = "failover:(tcp://192.168.72.249:61616)"
+
+# Define the name of the topic(s) that the plugin will send the data to
+# Every datarefs define under the same topic name will be grouped and send out to that particular topic
+publish_topic = ["Data", "Another"]
+
+# Define the name of the topic(s) that the plugin will subscribe to and will then write to that dataref
+subscribe_topic = ["Input"]
 
 # Getting a float dataref
-[[Data]] # Each dataref is an Data table
+[[Data]] # Name of the topic that this dataref should be published under
 name = "airspeed" # User specify name of the dataref, which will be used to access data later
 string = "sim/flightmodel/position/indicated_airspeed" # Dataref
 type = "float" # Type of the dataref. Can be either "int", "float" or "char"
@@ -22,19 +27,31 @@ num_value = 2 # Number of value after the start_index Ditto should read.
 [[Data]]
 name = "legs_full"
 string = "laminar/B738/fms/legs"
-type = "char"
+type = "string"
 
 # Getting a string dataref with an offset
 [[Data]]
 name = "legs_offset"
 string = "laminar/B738/fms/legs"
-type = "char"
+type = "string"
 start_index = 2
 
 # Getting part of string dataref
 [[Data]]
 name = "legs_part"
 string = "laminar/B738/fms/legs"
-type = "char"
+type = "string"
 start_index = 2
 num_value = 10
+
+# Getting a string dataref and send it to "Another" topic instead of "Data" topic
+[[Another]]
+name = "legs_full"
+string = "laminar/B738/fms/legs"
+type = "string"
+
+# Subscribe to "Input" topic and write to "sim/cockpit/autopilot/airspeed" dataref
+[[Input]]
+name = "airspeed"
+string = "sim/cockpit/autopilot/airspeed"
+type = "float"

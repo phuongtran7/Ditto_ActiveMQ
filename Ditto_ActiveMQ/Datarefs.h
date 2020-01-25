@@ -122,6 +122,6 @@ private:
 public:
 	explicit dataref(const std::string& topic, const std::string& address, const std::string& config);
 	bool init();
-	void send_data();
+	void update();
 	void shutdown();
 };
