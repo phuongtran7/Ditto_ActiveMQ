@@ -53,3 +53,70 @@ void Producer::run() {
 		XPLMDebugString(e.what());
 	}
 }
+
+Consumer::Consumer(const std::string& brokerURI, const std::string& destURI, Concurrency::ITarget<std::vector<unsigned char>>& target) :
+	connectionFactory(nullptr),
+	connection(nullptr),
+	session(nullptr),
+	destination(nullptr),
+	consumer(nullptr),
+	brokerURI(brokerURI),
+	destURI(destURI),
+	_target(target)
+{
+}
+
+Consumer::~Consumer()
+{
+	cleanup();
+}
+
+void Consumer::cleanup() {
+	destination.reset();
+	consumer.reset();
+	session->close();
+	connection->close();
+	session.reset();
+	connection.reset();
+}
+
+void Consumer::onException(const cms::CMSException& ex) {
+	XPLMDebugString("CMS Exception occurred. Shutting down client.\n");
+	//exit(1);
+}
+
+void Consumer::onMessage(const cms::Message* message)
+{
+	try
+	{
+		const auto msg = dynamic_cast<const cms::BytesMessage*>(message);
+		const auto msg_size = msg->getBodyLength();
+		std::unique_ptr<unsigned char> data(msg->getBodyBytes());
+		std::vector<unsigned char> buf(data.get(), data.get() + msg_size);
+
+		// Send the message to the buffer
+		Concurrency::asend(_target, buf);
+	}
+	catch (cms::CMSException & e) {
+		//e.printStackTrace();
+		XPLMDebugString(e.what());
+	}
+}
+
+void Consumer::run()
+{
+	try {
+		connectionFactory.reset(cms::ConnectionFactory::createCMSConnectionFactory(brokerURI));
+		connection.reset(connectionFactory->createConnection());
+		connection->start();
+		connection->setExceptionListener(this);
+		session.reset(connection->createSession(cms::Session::AUTO_ACKNOWLEDGE));
+		destination.reset(session->createTopic(destURI));
+		consumer.reset(session->createConsumer(destination.get()));
+		consumer->setMessageListener(this);
+	}
+	catch (cms::CMSException & e) {
+		//e.printStackTrace();
+		XPLMDebugString(e.what());
+	}
+}

@@ -16,6 +16,7 @@
     <ClCompile Include="PublishDataref.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SubscribeDataref.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActiveMQ.h">
@@ -33,6 +34,7 @@
     <ClInclude Include="PublishDataref.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SubscribeDataref.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
