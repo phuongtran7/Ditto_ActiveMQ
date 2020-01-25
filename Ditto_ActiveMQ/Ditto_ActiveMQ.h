@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Datarefs.h"
+#include "PublishDataref.h"
 #include "XPLMDataAccess.h"
 #include "XPLMProcessing.h"
 #include <filesystem>
 #include "Utility.h"
 
-std::vector<std::unique_ptr<dataref>> topic_vector;
+std::vector<std::unique_ptr<PublishDataref>> topic_vector;
 XPLMFlightLoopID publish_flight_loop_id{};
 XPLMFlightLoopID subscribe_flight_loop_id{};
 

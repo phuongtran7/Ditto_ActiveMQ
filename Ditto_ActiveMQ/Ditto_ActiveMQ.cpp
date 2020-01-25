@@ -63,7 +63,7 @@ PLUGIN_API int XPluginEnable(void) {
 	if (publish_topics) {
 		for (const auto& topic : *publish_topics)
 		{
-			auto dataref_instance = std::make_unique<dataref>(topic, address, config);
+			auto dataref_instance = std::make_unique<PublishDataref>(topic, address, config);
 			if (!dataref_instance->init()) {
 				XPLMDebugString(fmt::format("Cannot init topic {}. Shutting down.\n", topic).c_str());
 				return 0;
