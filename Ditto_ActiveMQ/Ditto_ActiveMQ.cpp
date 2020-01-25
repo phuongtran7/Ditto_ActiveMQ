@@ -32,10 +32,6 @@ PLUGIN_API void XPluginDisable(void)
 		XPLMDestroyFlightLoop(publish_flight_loop_id);
 	}
 
-	if (subscribe_flight_loop_id != nullptr) {
-		XPLMDestroyFlightLoop(subscribe_flight_loop_id);
-	}
-
 	// Shutting down ActiveMQ library
 	activemq::library::ActiveMQCPP::shutdownLibrary();
 
@@ -59,7 +55,7 @@ PLUGIN_API int XPluginEnable(void) {
 	auto address = input_file->get_as<std::string>("address").value_or("failover:(tcp://192.168.72.249:61616)");
 
 	// Get the publishing topics
-	auto publish_topics = input_file->get_array_of<std::string>("publish_topic");
+	auto publish_topics = input_file->get_array_of<std::string>("topic");
 	if (publish_topics) {
 		for (const auto& topic : *publish_topics)
 		{
@@ -84,13 +80,6 @@ PLUGIN_API int XPluginEnable(void) {
 		}
 	}
 	
-	// Get the subscribing topic
-	auto subscribe_topics = input_file->get_array_of<std::string>("subscribe_topic");
-	if (subscribe_topics) {
-
-	}
-
-
 	XPLMDebugString("Enabling Ditto.\n");
 	return 1;
 }
@@ -117,5 +106,5 @@ float publish_callback(float inElapsedSinceLastCall,
 	for (const auto& item : topic_vector) {
 		item->update();
 	}
-	return -1.0;
+	return -1.0f;
 }
