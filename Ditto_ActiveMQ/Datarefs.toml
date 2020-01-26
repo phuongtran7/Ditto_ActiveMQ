@@ -3,10 +3,7 @@ address = "failover:(tcp://192.168.72.249:61616)"
 
 # Define the name of the topic(s) that the plugin will send the data to
 # Every datarefs define under the same topic name will be grouped and send out to that particular topic
-publish_topic = ["Data", "Another"]
-
-# Define the name of the topic(s) that the plugin will subscribe to and will then write to that dataref
-subscribe_topic = ["Input"]
+topic = ["Data", "Another"]
 
 # Getting a float dataref
 [[Data]] # Name of the topic that this dataref should be published under
