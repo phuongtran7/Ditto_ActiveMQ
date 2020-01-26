@@ -8,9 +8,6 @@
 #include <string>
 #include <cpptoml.h>
 
-// The user’s aircraft is always index 0.
-#define XPLM_USER_AIRCRAFT 0
-
 struct aircraft_info 
 {
 	std::string aircraft_name;
