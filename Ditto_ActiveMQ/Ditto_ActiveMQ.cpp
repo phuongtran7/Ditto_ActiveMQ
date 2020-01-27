@@ -27,6 +27,8 @@ PLUGIN_API void XPluginDisable(void)
 	for (const auto& item : topic_vector) {
 		item->shutdown();
 	}
+	// Clear out the vector after shutting everything down
+	topic_vector.clear();
 
 	if (publish_flight_loop_id != nullptr) {
 		XPLMDestroyFlightLoop(publish_flight_loop_id);
