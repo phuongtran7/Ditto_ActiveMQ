@@ -45,7 +45,7 @@ const std::vector<uint8_t>& dataref::get_flexbuffers_data() {
 				}
 				else {
 					flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
-						for (auto& i : int_num) {
+						for (auto i : int_num) {
 							flexbuffers_builder_.Int(i);
 						}
 						});
@@ -68,7 +68,7 @@ const std::vector<uint8_t>& dataref::get_flexbuffers_data() {
 				}
 				else {
 					flexbuffers_builder_.TypedVector(dataref.name.c_str(), [&] {
-						for (auto& i : float_num) {
+						for (auto i : float_num) {
 							flexbuffers_builder_.Float(i);
 						}
 						});

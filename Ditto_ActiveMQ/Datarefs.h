@@ -68,16 +68,16 @@ private:
 
 	template<typename T, std::enable_if_t<std::is_same_v<T, std::vector<int>>, int> = 0>
 	decltype(auto) get_value(const dataref_info& in_dataref) {
-		std::vector<int> temp;
-		temp.reserve(in_dataref.num_value.value());
+		std::vector<int> temp{};
+		temp.resize(in_dataref.num_value.value());
 		XPLMGetDatavi(in_dataref.dataref, temp.data(), in_dataref.start_index.value(), in_dataref.num_value.value());
 		return temp;
 	}
 
 	template<typename T, std::enable_if_t<std::is_same_v<T, std::vector<float>>, int> = 0>
 	decltype(auto) get_value(const dataref_info& in_dataref) {
-		std::vector<float> temp;
-		temp.reserve(in_dataref.num_value.value());
+		std::vector<float> temp{};
+		temp.resize(in_dataref.num_value.value());
 		XPLMGetDatavf(in_dataref.dataref, temp.data(), in_dataref.start_index.value(), in_dataref.num_value.value());
 		return temp;
 	}
