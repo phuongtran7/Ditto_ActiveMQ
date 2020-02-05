@@ -46,7 +46,7 @@ PLUGIN_API int XPluginEnable(void) {
 	auto config = get_config_file_path();
 
 	if (config.empty()) {
-		XPLMDebugString("Cannot find configration \".toml\" file. Shutting down.\n");
+		XPLMDebugString("Ditto: Cannot find configration \".toml\" file. Shutting down.\n");
 		return 0;
 	}
 
@@ -63,7 +63,7 @@ PLUGIN_API int XPluginEnable(void) {
 		{
 			auto dataref_instance = std::make_unique<dataref>(topic, address, config);
 			if (!dataref_instance->init()) {
-				XPLMDebugString(fmt::format("Cannot init topic {}. Shutting down.\n", topic).c_str());
+				XPLMDebugString(fmt::format("Ditto: Cannot init topic {}. Shutting down.\n", topic).c_str());
 				return 0;
 			}
 			topic_vector.emplace_back(std::move(dataref_instance));
@@ -74,7 +74,7 @@ PLUGIN_API int XPluginEnable(void) {
 		publish_flight_loop_id = XPLMCreateFlightLoop(&data_params);
 		if (publish_flight_loop_id == nullptr)
 		{
-			XPLMDebugString("Cannot create flight loop. Exiting Ditto.\n");
+			XPLMDebugString("Ditto: Cannot create flight loop. Exiting Ditto.\n");
 			return 0;
 		}
 		else {

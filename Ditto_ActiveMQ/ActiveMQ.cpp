@@ -46,51 +46,63 @@ void Producer::send_message(const std::string& input) {
 }
 
 void Producer::send_message(uint8_t* pointer, size_t size) {
-	try {
-		auto msg = std::unique_ptr<cms::BytesMessage>(session->createBytesMessage(pointer, size));
-		producer->send(msg.get());
+	if (size != 0) {
+		try {
+			auto msg = std::unique_ptr<cms::BytesMessage>(session->createBytesMessage(pointer, size));
+			producer->send(msg.get());
+		}
+		catch (const cms::CMSException & e) {
+			XPLMDebugString(e.what());
+			XPLMDebugString("\n");
+		}
+		catch (const cms::MessageFormatException & e) {
+			XPLMDebugString(e.what());
+			XPLMDebugString("\n");
+		}
+		catch (const cms::InvalidDestinationException & e) {
+			XPLMDebugString(e.what());
+			XPLMDebugString("\n");
+		}
+		catch (const cms::UnsupportedOperationException & e) {
+			XPLMDebugString(e.what());
+			XPLMDebugString("\n");
+		}
 	}
-	catch (const cms::CMSException & e) {
-		XPLMDebugString(e.what());
-		XPLMDebugString("\n");
-	}
-	catch (const cms::MessageFormatException & e) {
-		XPLMDebugString(e.what());
-		XPLMDebugString("\n");
-	}
-	catch (const cms::InvalidDestinationException & e) {
-		XPLMDebugString(e.what());
-		XPLMDebugString("\n");
-	}
-	catch (const cms::UnsupportedOperationException & e) {
-		XPLMDebugString(e.what());
-		XPLMDebugString("\n");
+	else {
+		XPLMDebugString("Ditto: Message is empty.\n.");
+		return;
 	}
 }
 
 void Producer::send_message(const std::vector<uint8_t>& pointer, size_t size)
 {
-	try {
-		auto msg = std::unique_ptr<cms::BytesMessage>(session->createBytesMessage(pointer.data(), size));
-		producer->send(msg.get());
+	if (size != 0) {
+		try {
+			auto msg = std::unique_ptr<cms::BytesMessage>(session->createBytesMessage(pointer.data(), size));
+			producer->send(msg.get());
+		}
+		catch (const cms::CMSException & e) {
+			XPLMDebugString(e.what());
+			XPLMDebugString("\n");
+		}
+		catch (const cms::MessageFormatException & e) {
+			XPLMDebugString(e.what());
+			XPLMDebugString("\n");
+		}
+		catch (const cms::InvalidDestinationException & e) {
+			XPLMDebugString(e.what());
+			XPLMDebugString("\n");
+		}
+		catch (const cms::UnsupportedOperationException & e) {
+			XPLMDebugString(e.what());
+			XPLMDebugString("\n");
+		}
 	}
-	catch (const cms::CMSException& e) {
-		XPLMDebugString(e.what());
-		XPLMDebugString("\n");
+	else {
+		XPLMDebugString("Ditto: Message is empty.\n.");
+		return;
 	}
-	catch (const cms::MessageFormatException& e) {
-		XPLMDebugString(e.what());
-		XPLMDebugString("\n");
-	}
-	catch (const cms::InvalidDestinationException& e) {
-		XPLMDebugString(e.what());
-		XPLMDebugString("\n");
-	}
-	catch (const cms::UnsupportedOperationException & e) {
-		XPLMDebugString(e.what());
-		XPLMDebugString("\n");
-	}
- }
+}
 
 void Producer::run() {
 	try {
@@ -104,7 +116,6 @@ void Producer::run() {
 		producer->setTimeToLive(1800000); // 30 minutes time to live message
 	}
 	catch (cms::CMSException & e) {
-		//e.printStackTrace();
-		XPLMDebugString(e.what());
+		XPLMDebugString(fmt::format("Ditto: {}", e.what()).c_str());
 	}
 }
