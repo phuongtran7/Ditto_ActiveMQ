@@ -50,6 +50,7 @@ private:
 	void retry_dataref();
 	void empty_list();
 	void reset_builder();
+	void write_to_binary(const std::vector<uint8_t>& buffer, size_t size);
 
 	template<typename T, std::enable_if_t<std::is_same_v<T, int>, int> = 0>
 	decltype(auto) get_value(const dataref_info& in_dataref) {

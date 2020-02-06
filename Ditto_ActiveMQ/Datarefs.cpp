@@ -8,6 +8,13 @@ void dataref::reset_builder() {
 	flexbuffers_builder_.Clear();
 }
 
+void dataref::write_to_binary(const std::vector<uint8_t>& buffer, size_t size)
+{
+	std::ofstream ofile("DittoOutput.bin", std::ios::binary);
+	ofile.write((char*)buffer.data(), size);
+	ofile.close();
+}
+
 // Remove all the dataref in the dataref list
 void dataref::empty_list() {
 	// Try and get access to dataref_list_
