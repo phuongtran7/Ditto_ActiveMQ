@@ -145,6 +145,7 @@
     <ClCompile Include="ActiveMQ.cpp" />
     <ClCompile Include="Datarefs.cpp" />
     <ClCompile Include="Ditto_ActiveMQ.cpp" />
+    <ClCompile Include="MQTT.cpp" />
     <ClCompile Include="PublishTopic.cpp" />
     <ClCompile Include="Topic.cpp" />
     <ClCompile Include="Utility.cpp" />
@@ -153,6 +154,7 @@
     <ClInclude Include="ActiveMQ.h" />
     <ClInclude Include="Datarefs.h" />
     <ClInclude Include="Ditto_ActiveMQ.h" />
+    <ClInclude Include="MQTT.h" />
     <ClInclude Include="PublishTopic.h" />
     <ClInclude Include="Topic.h" />
     <ClInclude Include="Utility.h" />
