@@ -12,8 +12,7 @@ void Topic::empty_list() {
 	not_found_list_.clear();
 }
 
-Topic::Topic(TopicRole role, const std::string& topic, const std::string& address, const std::string& config) :
-	role_(role),
+Topic::Topic(const std::string& topic, const std::string& address, const std::string& config) :
 	topic_(topic),
 	address_(address),
 	config_file_path_(config),

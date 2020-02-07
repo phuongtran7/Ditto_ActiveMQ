@@ -12,13 +12,7 @@
 
 class Topic
 {
-public:
-	enum class TopicRole {
-		PUBLISHER,
-		SUBSCRIBER
-	};
-
-private:
+protected:
 	enum class DatarefType {
 		STRING,
 		INT,
@@ -35,7 +29,6 @@ private:
 		std::optional<int> num_value{}; // Number of values in the array to get; starts at start_index
 	};
 
-	TopicRole role_;
 	std::string topic_;
 	std::string address_;
 	std::string config_file_path_;
@@ -46,15 +39,15 @@ private:
 	int retry_limit{};
 	int retry_num{};
 
-private:
+protected:
 	bool get_data_list();
 	void set_retry_limit();
 	size_t get_not_found_list_size();
 	void retry_dataref();
-	void empty_list();
+	virtual void empty_list();
 
 public:
-	explicit Topic(TopicRole role, const std::string& topic, const std::string& address, const std::string& config);
+	explicit Topic(const std::string& topic, const std::string& address, const std::string& config);
 	virtual ~Topic() = default;
 	virtual bool init();
 	virtual void update();
