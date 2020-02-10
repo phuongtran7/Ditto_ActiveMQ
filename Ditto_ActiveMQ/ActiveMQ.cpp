@@ -28,20 +28,15 @@ void Producer::send_message(const std::string& input) {
 		producer->send(msg.get());
 	}
 	catch (const cms::CMSException & e) {
-		XPLMDebugString(e.what());
-		XPLMDebugString("\n");
 	}
 	catch (const cms::MessageFormatException & e) {
-		XPLMDebugString(e.what());
-		XPLMDebugString("\n");
+		XPLMDebugString(fmt::format("Ditto: Send error: {}\n", e.getMessage()).c_str());
 	}
 	catch (const cms::InvalidDestinationException & e) {
-		XPLMDebugString(e.what());
-		XPLMDebugString("\n");
+		XPLMDebugString(fmt::format("Ditto: Send error: {}\n", e.getMessage()).c_str());
 	}
 	catch (const cms::UnsupportedOperationException & e) {
-		XPLMDebugString(e.what());
-		XPLMDebugString("\n");
+		XPLMDebugString(fmt::format("Ditto: Send error: {}\n", e.getMessage()).c_str());
 	}
 }
 
@@ -52,20 +47,16 @@ void Producer::send_message(uint8_t* pointer, size_t size) {
 			producer->send(msg.get());
 		}
 		catch (const cms::CMSException & e) {
-			XPLMDebugString(e.what());
-			XPLMDebugString("\n");
+			XPLMDebugString(fmt::format("Ditto: Send error: {}\n", e.getMessage()).c_str());
 		}
 		catch (const cms::MessageFormatException & e) {
-			XPLMDebugString(e.what());
-			XPLMDebugString("\n");
+			XPLMDebugString(fmt::format("Ditto: Send error: {}\n", e.getMessage()).c_str());
 		}
 		catch (const cms::InvalidDestinationException & e) {
-			XPLMDebugString(e.what());
-			XPLMDebugString("\n");
+			XPLMDebugString(fmt::format("Ditto: Send error: {}\n", e.getMessage()).c_str());
 		}
 		catch (const cms::UnsupportedOperationException & e) {
-			XPLMDebugString(e.what());
-			XPLMDebugString("\n");
+			XPLMDebugString(fmt::format("Ditto: Send error: {}\n", e.getMessage()).c_str());
 		}
 	}
 	else {
@@ -82,20 +73,16 @@ void Producer::send_message(const std::vector<uint8_t>& pointer, size_t size)
 			producer->send(msg.get());
 		}
 		catch (const cms::CMSException & e) {
-			XPLMDebugString(e.what());
-			XPLMDebugString("\n");
+			XPLMDebugString(fmt::format("Ditto: Send error: {}\n", e.getMessage()).c_str());
 		}
 		catch (const cms::MessageFormatException & e) {
-			XPLMDebugString(e.what());
-			XPLMDebugString("\n");
+			XPLMDebugString(fmt::format("Ditto: Send error: {}\n", e.getMessage()).c_str());
 		}
 		catch (const cms::InvalidDestinationException & e) {
-			XPLMDebugString(e.what());
-			XPLMDebugString("\n");
+			XPLMDebugString(fmt::format("Ditto: Send error: {}\n", e.getMessage()).c_str());
 		}
 		catch (const cms::UnsupportedOperationException & e) {
-			XPLMDebugString(e.what());
-			XPLMDebugString("\n");
+			XPLMDebugString(fmt::format("Ditto: Send error: {}\n", e.getMessage()).c_str());
 		}
 	}
 	else {

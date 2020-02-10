@@ -93,16 +93,20 @@ private:
 				// Get the whole string
 				auto temp_buffer_size = current_string_size + 1;
 				auto temp = std::make_unique<char[]>(temp_buffer_size);
-				XPLMGetDatab(in_dataref.dataref, temp.get(), 0, current_string_size);
-				return std::string(temp.get());
+				if (XPLMGetDatab(in_dataref.dataref, temp.get(), 0, current_string_size) != 0) {
+					return std::string(temp.get());
+				}
+				return std::string();
 			}
 			else {
 				if (!in_dataref.num_value.has_value()) {
 					// Get the string from start_index to the end
 					auto temp_buffer_size = current_string_size + 1;
 					auto temp = std::make_unique<char[]>(temp_buffer_size);
-					XPLMGetDatab(in_dataref.dataref, temp.get(), in_dataref.start_index.value(), current_string_size);
-					return std::string(temp.get());
+					if (XPLMGetDatab(in_dataref.dataref, temp.get(), in_dataref.start_index.value(), current_string_size) != 0) {
+						return std::string(temp.get());
+					}
+					return std::string();
 				}
 				else {
 					// Get part of the string starting from start_index until
@@ -110,8 +114,10 @@ private:
 					auto temp_buffer_size = in_dataref.num_value.value() + 1;
 					if (in_dataref.num_value.value() <= current_string_size) {
 						auto temp = std::make_unique<char[]>(temp_buffer_size);
-						XPLMGetDatab(in_dataref.dataref, temp.get(), in_dataref.start_index.value(), in_dataref.num_value.value());
-						return std::string(temp.get());
+						if (XPLMGetDatab(in_dataref.dataref, temp.get(), in_dataref.start_index.value(), in_dataref.num_value.value()) != 0) {
+							return std::string(temp.get());
+						}
+						return std::string();
 					}
 				}
 			}
