@@ -34,9 +34,6 @@ PLUGIN_API void XPluginDisable(void)
 		XPLMDestroyFlightLoop(publish_flight_loop_id);
 	}
 
-	// Shutting down ActiveMQ library
-	activemq::library::ActiveMQCPP::shutdownLibrary();
-
 	XPLMDebugString("Disabling Ditto.\n");
 }
 
@@ -50,18 +47,15 @@ PLUGIN_API int XPluginEnable(void) {
 		return 0;
 	}
 
-	// Init ActiveMQ
-	activemq::library::ActiveMQCPP::initializeLibrary();
-
 	const auto input_file = cpptoml::parse_file(config);
 	auto address = input_file->get_as<std::string>("address").value_or("failover:(tcp://192.168.72.249:61616)");
 
 	// Get the publishing topics
-	auto publish_topics = input_file->get_array_of<std::string>("topic");
+	auto publish_topics = input_file->get_array_of<std::string>("publish_topic");
 	if (publish_topics) {
 		for (const auto& topic : *publish_topics)
 		{
-			auto dataref_instance = std::make_unique<dataref>(topic, address, config);
+			auto dataref_instance = std::make_unique<PublishTopic>(topic, address, config);
 			if (!dataref_instance->init()) {
 				XPLMDebugString(fmt::format("Ditto: Cannot init topic {}. Shutting down.\n", topic).c_str());
 				return 0;

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "mqtt/async_client.h"
 #include <mqtt/callback.h>
 #include "fmt/format.h"

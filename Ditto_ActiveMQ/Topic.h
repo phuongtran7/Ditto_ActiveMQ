@@ -1,6 +1,7 @@
 // This class is the base class for PublishTopic and SubscribeTopic
 
 #pragma once
+#include "MQTT.h"
 #include <vector>
 #include <deque>
 #include <optional>
@@ -50,6 +51,6 @@ public:
 	explicit Topic(const std::string& topic, const std::string& address, const std::string& config);
 	virtual ~Topic() = default;
 	virtual bool init();
-	virtual void update();
+	virtual void update() = 0;
 	virtual void shutdown();
 };

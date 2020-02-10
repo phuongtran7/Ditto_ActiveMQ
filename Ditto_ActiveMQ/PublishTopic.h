@@ -1,10 +1,12 @@
 #pragma once
 #include "Topic.h"
+
 class PublishTopic :
 	protected Topic
 {
 private:
 	flexbuffers::Builder flexbuffers_builder_;
+	std::unique_ptr<MQTT_Publisher> publisher_;
 
 private:
 	void prepare_flexbuffers_data();
