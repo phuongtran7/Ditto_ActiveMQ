@@ -13,7 +13,8 @@ MQTT_Publisher::MQTT_Publisher(const std::string& address, const std::string& to
 		client_.connect(conn_options_)->wait();
 	}
 	catch (const mqtt::exception & exc) {
-		fmt::print(exc.what());
+		//fmt::print(exc.what());
+		XPLMDebugString(fmt::format("Ditto: {}\n", exc.what()).c_str());
 	}
 }
 
@@ -23,7 +24,8 @@ MQTT_Publisher::~MQTT_Publisher()
 		client_.disconnect()->wait();
 	}
 	catch (const mqtt::exception & exc) {
-		fmt::print(exc.what());
+		//fmt::print(exc.what());
+		XPLMDebugString(fmt::format("Ditto: {}\n", exc.what()).c_str());
 	}
 }
 
@@ -41,27 +43,28 @@ void MQTT_Publisher::send_message(const std::vector<uint8_t>& pointer, size_t si
 
 void MQTT_Publisher::delivery_complete(mqtt::delivery_token_ptr token)
 {
-	fmt::print("Delivered message.\n");
+	XPLMDebugString("Ditto: Publisher delivered message.\n");
 }
 
 void MQTT_Publisher::on_failure(const mqtt::token& tok)
 {
-	fmt::print("failed.\n");
+	XPLMDebugString("Ditto: Publisher failed.\n");
 }
 
 void MQTT_Publisher::on_success(const mqtt::token& tok)
 {
-	fmt::print("Succeed.\n");
+	XPLMDebugString("Ditto: Publisher succeed.\n");
 }
 
 void MQTT_Publisher::connected(const std::string& cause)
 {
-	fmt::print("Connection success. Will publish to {}.\n", topic_);
+	XPLMDebugString(fmt::format("Ditto: Publisher connection success. Will publish to {}.\n", topic_).c_str());
 }
 
 void MQTT_Publisher::connection_lost(const std::string& cause)
 {
-	fmt::print("Connection lost: {}.\nReconnecting...\n", cause);
+	XPLMDebugString(fmt::format("Ditto: Publisher connection lost {}.\n", cause).c_str());
+	XPLMDebugString("Reconnecting...\n");
 	client_.reconnect()->wait();
 }
 
@@ -79,7 +82,8 @@ MQTT_Subscriber::MQTT_Subscriber(const std::string& address, const std::string& 
 		client_.connect(conn_options_)->wait();
 	}
 	catch (const mqtt::exception & exc) {
-		fmt::print(exc.what());
+		//fmt::print(exc.what());
+		XPLMDebugString(fmt::format("Ditto: {}\n", exc.what()).c_str());
 	}
 }
 
@@ -91,37 +95,38 @@ MQTT_Subscriber::~MQTT_Subscriber()
 		client_.disconnect()->wait();
 	}
 	catch (const mqtt::exception & exc) {
-		fmt::print(exc.what());
+		//fmt::print(exc.what());
+		XPLMDebugString(fmt::format("Ditto: {}\n", exc.what()).c_str());
 	}
 }
 
 void MQTT_Subscriber::message_arrived(mqtt::const_message_ptr msg)
 {
-	//fmt::print("Topic: {} - Payload: {}\n", msg->get_topic(), msg->to_string());
 	auto payload = msg->get_payload();
 	auto recieved = flexbuffers::GetRoot(reinterpret_cast<const uint8_t*>(payload.data()), payload.size()).AsFloat();
-	fmt::print("Got: {}\n", recieved);
+	//fmt::print("Got: {}\n", recieved);
 }
 
 void MQTT_Subscriber::on_failure(const mqtt::token& tok)
 {
-	fmt::print("Connection attempt failed. Will try to reconnect.\n");
+	XPLMDebugString("Ditto: Subscriber failed. Will try to reconnect.\n");
 	client_.reconnect()->wait();
 }
 
 void MQTT_Subscriber::on_success(const mqtt::token& tok)
 {
-	fmt::print("Succeed.\n");
+	XPLMDebugString("Ditto: Subscriber succeed.\n");
 }
 
 void MQTT_Subscriber::connected(const std::string& cause)
 {
-	fmt::print("Connection success. Will subscribte to {}.\n", topic_);
+	XPLMDebugString(fmt::format("Ditto: Subscriber connection success. Will subscribte to {}.\n", topic_).c_str());
 	client_.subscribe(topic_, qos_, nullptr, *this);
 }
 
 void MQTT_Subscriber::connection_lost(const std::string& cause)
 {
-	fmt::print("Connection lost: {}.\nReconnecting...\n", cause);
+	XPLMDebugString(fmt::format("Ditto: Subscriber connection lost {}.\n", cause).c_str());
+	XPLMDebugString("Reconnecting...\n");
 	client_.reconnect()->wait();
 }

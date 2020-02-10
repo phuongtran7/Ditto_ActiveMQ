@@ -3,6 +3,7 @@
 #include <mqtt/callback.h>
 #include "fmt/format.h"
 #include "flatbuffers/flexbuffers.h"
+#include "XPLMUtilities.h"
 
 class MQTT_Publisher : public virtual mqtt::callback,
 	public virtual mqtt::iaction_listener
