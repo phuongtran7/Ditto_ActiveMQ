@@ -4,9 +4,6 @@
     <ClCompile Include="ActiveMQ.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Datarefs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Ditto_ActiveMQ.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -25,9 +22,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActiveMQ.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Datarefs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility.h">

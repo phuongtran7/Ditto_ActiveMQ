@@ -102,8 +102,8 @@ MQTT_Subscriber::~MQTT_Subscriber()
 
 void MQTT_Subscriber::message_arrived(mqtt::const_message_ptr msg)
 {
-	auto payload = msg->get_payload();
-	auto recieved = flexbuffers::GetRoot(reinterpret_cast<const uint8_t*>(payload.data()), payload.size()).AsFloat();
+	//auto payload = msg->get_payload();
+	//auto recieved = flexbuffers::GetRoot(reinterpret_cast<const uint8_t*>(payload.data()), payload.size()).AsFloat();
 	//fmt::print("Got: {}\n", recieved);
 }
 
