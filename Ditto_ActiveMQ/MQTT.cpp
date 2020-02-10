@@ -53,7 +53,7 @@ void MQTT_Publisher::on_failure(const mqtt::token& tok)
 
 void MQTT_Publisher::on_success(const mqtt::token& tok)
 {
-	XPLMDebugString("Ditto: Publisher succeed.\n");
+	//XPLMDebugString("Ditto: Publisher succeed.\n");
 }
 
 void MQTT_Publisher::connected(const std::string& cause)
@@ -115,7 +115,7 @@ void MQTT_Subscriber::on_failure(const mqtt::token& tok)
 
 void MQTT_Subscriber::on_success(const mqtt::token& tok)
 {
-	XPLMDebugString("Ditto: Subscriber succeed.\n");
+	//XPLMDebugString("Ditto: Subscriber succeed.\n");
 }
 
 void MQTT_Subscriber::connected(const std::string& cause)
