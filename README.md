@@ -3,13 +3,13 @@
 
 Ditto is an X-Plane plugin that allows the user to pause the simulator in a specific scenario to add/remove or swap the datarefs that Ditto is sending the values out. This version of Ditto will act as an ActiveMQ publisher and publish a byte message that contains serialized flexbuffers data.
 
-Ditto uses <a href="https://google.github.io/flatbuffers/flexbuffers.html">Flexbuffers</a>, <a href="https://github.com/skystrife/cpptoml">cpptoml</a>, <a href="https://developer.x-plane.com/sdk/">X-Plane SDK</a>, <a href="https://github.com/fmtlib/fmt">{fmt}</a> and <a href="https://github.com/eclipse/paho.mqtt.cpp">Eclipse Paho MQTT C++ Client Library</a>.
+Ditto uses [Flexbuffers](https://google.github.io/flatbuffers/flexbuffers.html), [cpptoml](https://github.com/skystrife/cpptoml), [X-Plane SDK](https://developer.x-plane.com/sdk/), [Eclipse Paho MQTT C++ Client Library](https://github.com/eclipse/paho.mqtt.cpp).
 
 ## Installation
 ### Windows
-If you don't want to compile the plugin by yourself, you can head over the <a href="https://github.com/phuongtran7/Ditto_ActiveMQ/releases">releases</a> tab a get a pre-compiled version.
+If you don't want to compile the plugin by yourself, you can head over the [releases](https://github.com/phuongtran7/Ditto_ActiveMQ/releases) tab a get a pre-compiled version.
 
-1. Install Flatbuffers, X-Plane SDK, cpptoml and fmt, ActiveMQ-CPP with Microsoft's <a href="https://github.com/Microsoft/vcpkg">vcpkg</a>.
+1. Install Flatbuffers, X-Plane SDK, cpptoml and fmt, ActiveMQ-CPP with Microsoft's [vcpkg](https://github.com/Microsoft/vcpkg).
     * `vcpkg install flatbuffers`
     * `vcpkg install x-plane`
     * `vcpkg install cpptoml`
@@ -84,3 +84,6 @@ name = "legs_full"
 string = "laminar/B738/fms/legs"
 type = "string"
 ```
+
+## Notes
+At the moment of this writing (February 11th, 2012), there is a bug in C++ Flexbuffers implementation. It will cause a crash when reading the buffer that was created by Ditto in C# using [FlexBuffers-CSharp](https://github.com/mzaks/FlexBuffers-CSharp). The bug is filled [here](https://github.com/mzaks/FlexBuffers-CSharp/issues/1), and already [fixed](https://github.com/google/flatbuffers/issues/5760) in newer version of Flexbuffers (newer than 1.10, which is currently used in vcpkg).
