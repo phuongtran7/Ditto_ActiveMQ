@@ -3,7 +3,7 @@
 
 Ditto is an X-Plane plugin that allows the user to pause the simulator in a specific scenario to add/remove or swap the datarefs that Ditto is sending the values out. This version of Ditto will act as an ActiveMQ publisher and publish a byte message that contains serialized flexbuffers data.
 
-Ditto uses <a href="https://google.github.io/flatbuffers/flexbuffers.html">Flexbuffers</a>, <a href="https://github.com/skystrife/cpptoml">cpptoml</a>, <a href="https://developer.x-plane.com/sdk/">X-Plane SDK</a>, <a href="https://github.com/fmtlib/fmt">{fmt}</a> and <a href="http://activemq.apache.org/components/cms/">ActiveMQ-CPP</a>.
+Ditto uses <a href="https://google.github.io/flatbuffers/flexbuffers.html">Flexbuffers</a>, <a href="https://github.com/skystrife/cpptoml">cpptoml</a>, <a href="https://developer.x-plane.com/sdk/">X-Plane SDK</a>, <a href="https://github.com/fmtlib/fmt">{fmt}</a> and <a href="https://github.com/eclipse/paho.mqtt.cpp">Eclipse Paho MQTT C++ Client Library</a>.
 
 ## Installation
 ### Windows
@@ -14,7 +14,7 @@ If you don't want to compile the plugin by yourself, you can head over the <a hr
     * `vcpkg install x-plane`
     * `vcpkg install cpptoml`
     * `vcpkg install fmt`
-    * `vcpkg install activemq-cpp`
+    * `vcpkg install paho-mqttpp3`
 2. Clone the project: `git clone https://github.com/phuongtran7/Ditto_ActiveMQ`.
 3. Build the project with Visual Studio.
 
@@ -36,11 +36,11 @@ If you don't want to compile the plugin by yourself, you can head over the <a hr
 1. Example `Datarefs.toml` content:
 ```
 # Setting address and topic
-address = "failover:(tcp://192.168.72.249:61616)"
+address = "tcp://192.168.72.249:1883"
 
 # Define the name of the topic(s) that the plugin will send the data to
 # Every datarefs define under the same topic name will be grouped and send out to that particular topic
-topic = ["Data", "Another"]
+publish_topic = ["Data", "Another"]
 
 # Getting a float dataref
 [[Data]] # Name of the topic that this dataref should be published under
