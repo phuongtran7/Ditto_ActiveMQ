@@ -66,7 +66,12 @@ void MQTT_Publisher::connection_lost(const std::string& cause)
 	XPLMDebugString(fmt::format("Ditto: Publisher connection lost {}.\n", cause).c_str());
 	XPLMDebugString("Reconnecting...\n");
 	// Calling reconnect might be the reason the plugin crash. Should test some more.
-	client_.connect(conn_options_)->wait();
+	try {
+		client_.connect(conn_options_)->wait();
+	}
+	catch (const mqtt::exception & ex) {
+		XPLMDebugString(fmt::format("Ditto: Publisher failed to reconnect with error: {}\n", ex.get_message()).c_str());
+	}
 }
 
 MQTT_Subscriber::MQTT_Subscriber(const std::string& address, const std::string& topic, int qos) :
@@ -129,5 +134,10 @@ void MQTT_Subscriber::connection_lost(const std::string& cause)
 {
 	XPLMDebugString(fmt::format("Ditto: Subscriber connection lost {}.\n", cause).c_str());
 	XPLMDebugString("Reconnecting...\n");
-	client_.reconnect()->wait();
+	try {
+		client_.connect(conn_options_)->wait();
+	}
+	catch (const mqtt::exception & ex) {
+		XPLMDebugString(fmt::format("Ditto: Subscriber failed to reconnect with error: {}\n", ex.get_message()).c_str());
+	}
 }
