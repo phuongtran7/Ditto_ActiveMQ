@@ -111,7 +111,7 @@ bool Topic::get_data_list() {
 					temp_dataref_info.num_value = std::nullopt;
 				}
 
-				if (temp_dataref_info.dataref == NULL) {
+				if (temp_dataref_info.dataref == nullptr) {
 					// Push to not found list to retry at later time
 					not_found_list_.emplace_back(temp_dataref_info);
 				}
