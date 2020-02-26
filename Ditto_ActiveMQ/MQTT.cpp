@@ -10,10 +10,9 @@ MQTT_Publisher::MQTT_Publisher(const std::string& address, const std::string& to
 	try {
 		conn_options_.set_clean_session(true);
 		client_.set_callback(*this);
-		client_.connect(conn_options_)->wait();
+		client_.connect(conn_options_, nullptr, *this);
 	}
 	catch (const mqtt::exception & exc) {
-		//fmt::print(exc.what());
 		XPLMDebugString(fmt::format("Ditto: {}\n", exc.what()).c_str());
 	}
 }
@@ -24,21 +23,35 @@ MQTT_Publisher::~MQTT_Publisher()
 		client_.disconnect()->wait();
 	}
 	catch (const mqtt::exception & exc) {
-		//fmt::print(exc.what());
 		XPLMDebugString(fmt::format("Ditto: {}\n", exc.what()).c_str());
 	}
 }
 
 void MQTT_Publisher::send_message(const std::string& message)
 {
-	mqtt::message_ptr pubmsg = mqtt::make_message(topic_, message.c_str(), message.size(), 0, false);
-	client_.publish(pubmsg, nullptr, *this);
+	if (client_.is_connected()) {
+		try {
+			mqtt::message_ptr pubmsg = mqtt::make_message(topic_, message.c_str(), message.size(), 0, false);
+			client_.publish(pubmsg, nullptr, *this);
+		}
+		catch (const mqtt::exception & ex) {
+			XPLMDebugString(fmt::format("Ditto: Publisher send failed: {}\n", ex.get_message()).c_str());
+		}
+	}
 }
 
 void MQTT_Publisher::send_message(const std::vector<uint8_t>& pointer, size_t size)
 {
-	mqtt::message_ptr pubmsg = mqtt::make_message(topic_, pointer.data(), size, 0, false);
-	client_.publish(pubmsg, nullptr, *this);
+	if (client_.is_connected()) {
+		try {
+			mqtt::message_ptr pubmsg = mqtt::make_message(topic_, pointer.data(), size, 0, false);
+			client_.publish(pubmsg, nullptr, *this);
+
+		}
+		catch (const mqtt::exception & ex) {
+			XPLMDebugString(fmt::format("Ditto: Publisher send failed: {}\n", ex.get_message()).c_str());
+		}
+	}
 }
 
 void MQTT_Publisher::delivery_complete(mqtt::delivery_token_ptr token)
@@ -64,10 +77,10 @@ void MQTT_Publisher::connected(const std::string& cause)
 void MQTT_Publisher::connection_lost(const std::string& cause)
 {
 	XPLMDebugString(fmt::format("Ditto: Publisher connection lost {}.\n", cause).c_str());
-	XPLMDebugString("Reconnecting...\n");
+	XPLMDebugString("Ditto: Reconnecting...\n");
 	// Calling reconnect might be the reason the plugin crash. Should test some more.
 	try {
-		client_.connect(conn_options_)->wait();
+		client_.connect(conn_options_, nullptr, *this);
 	}
 	catch (const mqtt::exception & ex) {
 		XPLMDebugString(fmt::format("Ditto: Publisher failed to reconnect with error: {}\n", ex.get_message()).c_str());
