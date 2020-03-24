@@ -46,6 +46,7 @@ void SubscribeTopic::update()
 					// If start index exist then it's an array
 					auto temp = data[dataref.name].AsFixedTypedVector();
 					std::vector<int> tempVector{};
+					tempVector.reserve(temp.size());
 					for (auto i = 0; i < temp.size(); i++) {
 						tempVector.push_back(temp[i].AsInt32());
 					}
@@ -61,6 +62,7 @@ void SubscribeTopic::update()
 				if (dataref.start_index.has_value()) {
 					auto temp = data[dataref.name].AsFixedTypedVector();
 					std::vector<float> tempVector{};
+					tempVector.reserve(temp.size());
 					for (auto i = 0; i < temp.size(); i++) {
 						tempVector.push_back(temp[i].AsFloat());
 					}

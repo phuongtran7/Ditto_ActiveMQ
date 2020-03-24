@@ -98,7 +98,7 @@ PLUGIN_API int XPluginEnable(void) {
 			subscribe_topic_vector.emplace_back(std::move(dataref_instance));
 		}
 
-		// Register flight loop for sending data to broker
+		// Register flight loop for writing the data
 		XPLMCreateFlightLoop_t data_params{ sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, subscribe_callback, nullptr };
 		subscribe_flight_loop_id = XPLMCreateFlightLoop(&data_params);
 		if (subscribe_flight_loop_id == nullptr)

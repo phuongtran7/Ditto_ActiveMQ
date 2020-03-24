@@ -12,10 +12,10 @@ void Topic::empty_list() {
 	not_found_list_.clear();
 }
 
-Topic::Topic(const std::string& topic, const std::string& address, const std::string& config) :
-	topic_(topic),
-	address_(address),
-	config_file_path_(config),
+Topic::Topic(std::string topic, std::string address, std::string config) :
+	topic_(std::move(topic)),
+	address_(std::move(address)),
+	config_file_path_(std::move(config)),
 	dataref_list_{},
 	not_found_list_{}
 {

@@ -48,7 +48,7 @@ protected:
 	virtual void empty_list();
 
 public:
-	explicit Topic(const std::string& topic, const std::string& address, const std::string& config);
+	explicit Topic(std::string topic, std::string address, std::string config);
 	virtual ~Topic() = default;
 	virtual bool init();
 	virtual void update() = 0;
