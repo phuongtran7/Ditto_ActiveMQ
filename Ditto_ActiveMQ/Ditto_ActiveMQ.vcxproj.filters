@@ -16,6 +16,9 @@
     <ClCompile Include="MQTT_Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SubscribeTopic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility.h">
@@ -34,6 +37,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="synchronized_value.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SubscribeTopic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
