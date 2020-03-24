@@ -19,7 +19,6 @@ void MQTT_Client::initialize()
 		client_->connect(conn_options_)->wait();
 	}
 	catch (const mqtt::exception& exc) {
-		//fmt::print("{}\n", exc.what());
 		XPLMDebugString(fmt::format("Ditto: {}\n", exc.what()).c_str());
 	}
 }
@@ -59,7 +58,6 @@ MQTT_Client::~MQTT_Client()
 			buffer_.reset();
 		}
 		catch (const mqtt::exception& exc) {
-			//fmt::print("{}\n", exc.what());
 			XPLMDebugString(fmt::format("Ditto: {}\n", exc.what()).c_str());
 		}
 	}
@@ -198,9 +196,6 @@ void action_callback::connection_lost(const std::string& cause)
 
 void action_callback::message_arrived(mqtt::const_message_ptr msg)
 {
-	/*fmt::print("Message arrived.\n");
-	fmt::print("Payload: {}\n", msg->to_string());*/
-
 	if (buffer_ != nullptr) {
 		apply([new_val = msg->get_payload_str()](std::string& val) mutable {
 			val = std::move(new_val);
