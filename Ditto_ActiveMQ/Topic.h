@@ -1,7 +1,6 @@
 // This class is the base class for PublishTopic and SubscribeTopic
 
 #pragma once
-//#include "MQTT.h"
 #include "MQTT_Client.h"
 #include <vector>
 #include <deque>

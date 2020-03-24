@@ -13,9 +13,6 @@
     <ClCompile Include="PublishTopic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MQTT.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MQTT_Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -31,9 +28,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PublishTopic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MQTT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MQTT_Client.h">

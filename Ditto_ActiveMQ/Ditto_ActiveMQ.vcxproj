@@ -145,7 +145,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Ditto_ActiveMQ.cpp" />
-    <ClCompile Include="MQTT.cpp" />
     <ClCompile Include="MQTT_Client.cpp" />
     <ClCompile Include="PublishTopic.cpp" />
     <ClCompile Include="Topic.cpp" />
@@ -153,7 +152,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ditto_ActiveMQ.h" />
-    <ClInclude Include="MQTT.h" />
     <ClInclude Include="MQTT_Client.h" />
     <ClInclude Include="PublishTopic.h" />
     <ClInclude Include="synchronized_value.h" />
