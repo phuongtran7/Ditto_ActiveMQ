@@ -24,14 +24,23 @@ PLUGIN_API void	XPluginStop(void)
 PLUGIN_API void XPluginDisable(void)
 {
 	// Shutting down each instance of dataref along with the ActiveMQ connection
-	for (const auto& item : topic_vector) {
+	for (const auto& item : publish_topic_vector) {
 		item->shutdown();
 	}
 	// Clear out the vector after shutting everything down
-	topic_vector.clear();
+	publish_topic_vector.clear();
+
+	for (const auto& item : subscribe_topic_vector) {
+		item->shutdown();
+	}
+	subscribe_topic_vector.clear();
 
 	if (publish_flight_loop_id != nullptr) {
 		XPLMDestroyFlightLoop(publish_flight_loop_id);
+	}
+
+	if (subscribe_flight_loop_id != nullptr) {
+		XPLMDestroyFlightLoop(subscribe_flight_loop_id);
 	}
 
 	XPLMDebugString("Disabling Ditto.\n");
@@ -60,7 +69,7 @@ PLUGIN_API int XPluginEnable(void) {
 				XPLMDebugString(fmt::format("Ditto: Cannot init topic {}. Shutting down.\n", topic).c_str());
 				return 0;
 			}
-			topic_vector.emplace_back(std::move(dataref_instance));
+			publish_topic_vector.emplace_back(std::move(dataref_instance));
 		}
 
 		// Register flight loop for sending data to broker
@@ -68,11 +77,37 @@ PLUGIN_API int XPluginEnable(void) {
 		publish_flight_loop_id = XPLMCreateFlightLoop(&data_params);
 		if (publish_flight_loop_id == nullptr)
 		{
-			XPLMDebugString("Ditto: Cannot create flight loop. Exiting Ditto.\n");
+			XPLMDebugString("Ditto: Cannot create publish flight loop. Exiting Ditto.\n");
 			return 0;
 		}
 		else {
 			XPLMScheduleFlightLoop(publish_flight_loop_id, -1.0f, true);
+		}
+	}
+
+	// Get the subscribing topics
+	auto subscribe_topics = input_file->get_array_of<std::string>("subscribe_topic");
+	if (subscribe_topics) {
+		for (const auto& topic : *subscribe_topics)
+		{
+			auto dataref_instance = std::make_unique<SubscribeTopic>(topic, address, config);
+			if (!dataref_instance->init()) {
+				XPLMDebugString(fmt::format("Ditto: Cannot init topic {}. Shutting down.\n", topic).c_str());
+				return 0;
+			}
+			subscribe_topic_vector.emplace_back(std::move(dataref_instance));
+		}
+
+		// Register flight loop for sending data to broker
+		XPLMCreateFlightLoop_t data_params{ sizeof(XPLMCreateFlightLoop_t), xplm_FlightLoop_Phase_AfterFlightModel, subscribe_callback, nullptr };
+		subscribe_flight_loop_id = XPLMCreateFlightLoop(&data_params);
+		if (subscribe_flight_loop_id == nullptr)
+		{
+			XPLMDebugString("Ditto: Cannot create subscribe flight loop. Exiting Ditto.\n");
+			return 0;
+		}
+		else {
+			XPLMScheduleFlightLoop(subscribe_flight_loop_id, -1.0f, true);
 		}
 	}
 	
@@ -99,7 +134,18 @@ float publish_callback(float inElapsedSinceLastCall,
 	int inCounter,
 	void* inRefcon)
 {
-	for (const auto& item : topic_vector) {
+	for (const auto& item : publish_topic_vector) {
+		item->update();
+	}
+	return -1.0f;
+}
+
+float subscribe_callback(float inElapsedSinceLastCall,
+	float inElapsedTimeSinceLastFlightLoop,
+	int inCounter,
+	void* inRefcon)
+{
+	for (const auto& item : subscribe_topic_vector) {
 		item->update();
 	}
 	return -1.0f;
