@@ -3,25 +3,26 @@
 #include "mqtt/callback.h"
 #include "fmt/format.h"
 #include "synchronized_value.h"
-#include "XPLMUtilities.h"
+#include <XPLMUtilities.h>
 
 /*
- * This callback is used to display the result of some action that take place
- * in the main callback.
- * For example, display the result of the subscribe event in the main callback after
- * succeeding in connecting to the broker
+ * This callback is used to display the result of subscribing event
  */
-class action_listener : public virtual mqtt::iaction_listener
+class subscribe_listener : public virtual mqtt::iaction_listener
 {
-private:
-	std::string name_;
-
 private:
 	void on_failure(const mqtt::token& tok) override;
 	void on_success(const mqtt::token& tok) override;
+};
 
-public:
-	action_listener(std::string name);
+/*
+ * This callback is used to display the result of publishing event
+ */
+class publish_listener : public virtual mqtt::iaction_listener
+{
+private:
+	void on_failure(const mqtt::token& tok) override;
+	void on_success(const mqtt::token& tok) override;
 };
 
 /*
@@ -38,8 +39,8 @@ private:
 	mqtt::async_client& cli_;
 	// Options to use if we need to reconnect
 	mqtt::connect_options& connOpts_;
-	// An action listener to display the result of actions.
-	action_listener subListener_;
+	// An action listener to display the result of actions. In this case, the subscribe action
+	std::shared_ptr<subscribe_listener> subscribe_listener_;
 	// Topic we are publishing/subscribing to
 	std::string topic_;
 	// Buffer to store message
@@ -87,8 +88,9 @@ private:
 	int qos_;
 	mqtt::async_client_ptr client_;
 	mqtt::connect_options conn_options_;
-	std::shared_ptr<action_callback> callback_;
 	std::shared_ptr<synchronized_value<std::string>> buffer_;
+	std::shared_ptr<action_callback> callback_; // Main callback for connection to the MQTT broker
+	std::shared_ptr<publish_listener> publish_listener_; // An action listener to display the result of actions, in this case the publish action
 
 private:
 	void initialize();
