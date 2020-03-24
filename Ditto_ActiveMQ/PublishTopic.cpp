@@ -85,7 +85,8 @@ void PublishTopic::reset_builder()
 
 void PublishTopic::start_publisher()
 {
-	publisher_ = std::make_unique<MQTT_Publisher>(address_, topic_, 0);
+	//publisher_ = std::make_unique<MQTT_Publisher>(address_, topic_, 0);
+	publisher = std::make_unique<MQTT_Client>(address_, topic_, 0);
 }
 
 void PublishTopic::empty_list()
@@ -115,12 +116,14 @@ bool PublishTopic::init()
 void PublishTopic::update()
 {
 	prepare_flexbuffers_data();
-	publisher_->send_message(flexbuffers_builder_.GetBuffer(), flexbuffers_builder_.GetSize());
+	//publisher_->send_message(flexbuffers_builder_.GetBuffer(), flexbuffers_builder_.GetSize());
+	publisher->send_message(flexbuffers_builder_.GetBuffer());
 	reset_builder();
 }
 
 void PublishTopic::shutdown()
 {
 	empty_list();
-	publisher_.reset();
+	//publisher_.reset();
+	publisher.reset();
 }

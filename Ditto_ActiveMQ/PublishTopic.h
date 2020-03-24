@@ -6,7 +6,8 @@ class PublishTopic :
 {
 private:
 	flexbuffers::Builder flexbuffers_builder_;
-	std::unique_ptr<MQTT_Publisher> publisher_;
+	//std::unique_ptr<MQTT_Publisher> publisher_;
+	std::unique_ptr<MQTT_Client> publisher;
 
 private:
 	void prepare_flexbuffers_data();
