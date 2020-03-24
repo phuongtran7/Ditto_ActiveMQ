@@ -23,18 +23,18 @@ private:
 	}
 
 	template<typename T, std::enable_if_t<std::is_same_v<T, double>, int> = 0>
-	void get_value(const DatarefInfo& in_dataref, T input) {
+	void set_value(const DatarefInfo& in_dataref, T input) {
 		XPLMSetDatad(in_dataref.dataref, input);
 	}
 
 	template<typename T, std::enable_if_t<std::is_same_v<T, std::vector<int>>, int> = 0>
 	void set_value(const DatarefInfo& in_dataref, T input) {
-		XPLMSetDatavi(in_dataref.dataref, input, in_dataref.start_index, in_dataref.num_value);
+		XPLMSetDatavi(in_dataref.dataref, const_cast<int*>(&input[0]), in_dataref.start_index.value(), in_dataref.num_value.value());
 	}
 
 	template<typename T, std::enable_if_t<std::is_same_v<T, std::vector<float>>, int> = 0>
 	void set_value(const DatarefInfo& in_dataref, T input) {
-		XPLMSetDatavf(in_dataref.dataref, input, in_dataref.start_index, in_dataref.num_value);
+		XPLMSetDatavf(in_dataref.dataref, const_cast<float*>(&input[0]), in_dataref.start_index.value(), in_dataref.num_value.value());
 	}
 
 public:
