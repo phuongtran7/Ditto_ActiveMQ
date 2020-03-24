@@ -49,7 +49,7 @@
     <TargetName>win</TargetName>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
-    <ClangTidyChecks>clang-diagnostic-*,clang-analyzer-*,-*,bugprone*,modernize*,performance*</ClangTidyChecks>
+    <ClangTidyChecks>clang-diagnostic-*,clang-analyzer-*,-*,bugprone*,modernize*,performance*,-modernize-use-auto,-modernize-use-trailing-return-type</ClangTidyChecks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>.\Debug\plugins\$(TargetName)\64\</OutDir>
@@ -60,7 +60,7 @@
     <TargetName>win</TargetName>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
-    <ClangTidyChecks>clang-diagnostic-*,clang-analyzer-*,-*,bugprone*,modernize*,performance*</ClangTidyChecks>
+    <ClangTidyChecks>clang-diagnostic-*,clang-analyzer-*,-*,bugprone*,modernize*,performance*,-modernize-use-auto,-modernize-use-trailing-return-type</ClangTidyChecks>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClCompile Include="Ditto_ActiveMQ.cpp" />
     <ClCompile Include="MQTT.cpp" />
+    <ClCompile Include="MQTT_Client.cpp" />
     <ClCompile Include="PublishTopic.cpp" />
     <ClCompile Include="Topic.cpp" />
     <ClCompile Include="Utility.cpp" />
@@ -153,7 +154,9 @@
   <ItemGroup>
     <ClInclude Include="Ditto_ActiveMQ.h" />
     <ClInclude Include="MQTT.h" />
+    <ClInclude Include="MQTT_Client.h" />
     <ClInclude Include="PublishTopic.h" />
+    <ClInclude Include="synchronized_value.h" />
     <ClInclude Include="Topic.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
