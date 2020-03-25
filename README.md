@@ -3,7 +3,7 @@
 
 Ditto is an X-Plane plugin that allows the user to pause the simulator in a specific scenario to add/remove or swap the datarefs that Ditto is sending the values out. This version of Ditto will act as an ActiveMQ publisher and publish a byte message that contains serialized flexbuffers data.
 
-Ditto uses [Flexbuffers](https://google.github.io/flatbuffers/flexbuffers.html), [cpptoml](https://github.com/skystrife/cpptoml), [X-Plane SDK](https://developer.x-plane.com/sdk/), [Eclipse Paho MQTT C++ Client Library](https://github.com/eclipse/paho.mqtt.cpp).
+Ditto uses [Flexbuffers](https://google.github.io/flatbuffers/flexbuffers.html), [{fmt}](https://github.com/fmtlib/fmt), [cpptoml](https://github.com/skystrife/cpptoml), [X-Plane SDK](https://developer.x-plane.com/sdk/), [Eclipse Paho MQTT C++ Client Library](https://github.com/eclipse/paho.mqtt.cpp).
 
 ## Installation
 ### Windows
@@ -29,7 +29,7 @@ If you don't want to compile the plugin by yourself, you can head over the [rele
 ### Modifying datarefs/endpoints
 1. Disable Ditto by using Plugin Manager in X-Plane.
 2. (Optional) Pause X-Plane.
-3. Modify `Datarefs.toml`.
+3. Modify `Datarefs.toml`. Note: the config file can be named anything as long as the extension is `.toml`.
 4. Re-enable Ditto and unpause X-Plane if necessary.
 
 ## Code samples
@@ -41,6 +41,11 @@ address = "tcp://192.168.72.249:1883"
 # Define the name of the topic(s) that the plugin will send the data to
 # Every datarefs define under the same topic name will be grouped and send out to that particular topic
 publish_topic = ["Data", "Another"]
+
+# Define the name of the topic(s) that the plugin will receive data from
+# The plugin will expect to receive a Flexbuffers map that contain the data corresponding to the dataref
+# name defined in the topic
+subscribe_topci = ["InData"]
 
 # Getting a float dataref
 [[Data]] # Name of the topic that this dataref should be published under
@@ -83,6 +88,12 @@ num_value = 10
 name = "legs_full"
 string = "laminar/B738/fms/legs"
 type = "string"
+
+# The plugin will write the received data to this dataref
+[[InData]]
+name = "nav1_freq_hz"
+string = "sim/cockpit/radios/nav1_freq_hz"
+type = "int"
 ```
 
 ## Notes
