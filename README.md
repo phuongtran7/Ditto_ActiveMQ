@@ -98,5 +98,14 @@ string = "sim/cockpit/radios/nav1_freq_hz"
 type = "int"
 ```
 
+2. Ditto expected data if a subscribing topic is defined
+```cpp
+flexbuffers::Builder fbb;
+auto map_start = fbb.StartMap();
+fbb.Int("nav1_freq_hz", 12345);
+fbb.EndMap(map_start);
+fbb.Finish();
+```
+
 ## Notes
 At the moment of this writing (February 11th, 2012), there is a bug in C++ Flexbuffers implementation. It will cause a crash when reading the buffer that was created by Ditto in C# using [FlexBuffers-CSharp](https://github.com/mzaks/FlexBuffers-CSharp). The bug is filled [here](https://github.com/mzaks/FlexBuffers-CSharp/issues/1), and already [fixed](https://github.com/google/flatbuffers/issues/5760) in newer version of Flexbuffers (newer than 1.10, which is currently used in vcpkg).
