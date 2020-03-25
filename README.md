@@ -3,9 +3,9 @@
 
 Ditto is an X-Plane plugin that allows the user to pause the simulator in a specific scenario to add/remove or swap the datarefs that Ditto is sending the values out. This version of Ditto will act as a MQTT publisher and publish a byte message that contains serialized flexbuffers data. Ditto also has the ability to write the data back into X-Plane dataref by subscribing to another topic if defined in the config file.
 
-Ditto uses [Flexbuffers](https://google.github.io/flatbuffers/flexbuffers.html), [{fmt}](https://github.com/fmtlib/fmt), [cpptoml](https://github.com/skystrife/cpptoml), [X-Plane SDK](https://developer.x-plane.com/sdk/), [Eclipse Paho MQTT C++ Client Library](https://github.com/eclipse/paho.mqtt.cpp).
+Ditto is mainly tested with [ActiveMQ Artemis](https://activemq.apache.org/components/artemis/), hence the name. However, any MQTT broker, for example: [Eclipse Mosquitto](https://mosquitto.org/) and [HiveMQ](https://github.com/hivemq/hivemq-community-edition), that supports MQTT v3.1.1 should work as well.
 
-Ditto is tested with ActiveMQ Artemis, hence the name. However, any MQTT broker that support MQTT v3.1.1 should work as well.
+Ditto uses [Flexbuffers](https://google.github.io/flatbuffers/flexbuffers.html), [{fmt}](https://github.com/fmtlib/fmt), [cpptoml](https://github.com/skystrife/cpptoml), [X-Plane SDK](https://developer.x-plane.com/sdk/), [Eclipse Paho MQTT C++ Client Library](https://github.com/eclipse/paho.mqtt.cpp).
 
 ## Installation
 ### Windows
@@ -24,7 +24,7 @@ If you don't want to compile the plugin by yourself, you can head over the [rele
 ### Start up
 1. Copy the compiled Ditto into aircraft plugin folder in X-Plane. For example, `X_Plane root/Aircraft/Laminar Research/Boeing B737-800/plugins/`.
 2. Copy `Datarefs.toml` file into Ditto folder. For example, `X_Plane root/Aircraft/Laminar Research/Boeing B737-800/plugins/Ditto/`. 
-3. Define the address of the ActiveMQ server and the topics that Ditto should publish under.
+3. Define the address of the MQTT broker and the topics that Ditto should publish under.
 4. Define all the datarefs that the plugin should send the value out.
 5. Start X-Plane.
 
@@ -47,7 +47,7 @@ publish_topic = ["Data", "Another"]
 # Define the name of the topic(s) that the plugin will receive data from
 # The plugin will expect to receive a Flexbuffers map that contain the data corresponding to the dataref
 # name defined in the topic
-subscribe_topci = ["InData"]
+subscribe_topic = ["InData"]
 
 # Getting a float dataref
 [[Data]] # Name of the topic that this dataref should be published under
