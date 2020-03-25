@@ -10,7 +10,7 @@ void SubscribeTopic::empty_list()
 
 void SubscribeTopic::start_subscriber()
 {
-	buffer_ = std::make_shared < synchronized_value<std::string>>();
+	buffer_ = std::make_shared<synchronized_value<std::string>>();
 	subscriber_ = std::make_unique<MQTT_Client>(address_, topic_, 0, buffer_);
 }
 
@@ -85,10 +85,7 @@ void SubscribeTopic::update()
 			default:
 				break;
 			}
-
-
 		}
-
 	}
 }
 
