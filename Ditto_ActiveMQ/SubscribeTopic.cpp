@@ -95,5 +95,6 @@ void SubscribeTopic::update()
 void SubscribeTopic::shutdown()
 {
 	empty_list();
-	//publisher_.reset();
+	subscriber_.reset();
+	buffer_.reset();
 }
