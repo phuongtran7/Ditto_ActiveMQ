@@ -9,7 +9,7 @@ void MQTT_Client::initialize()
 		client_->connect(conn_options_)->wait();
 	}
 	catch (const mqtt::exception& exc) {
-		XPLMDebugString(fmt::format("Ditto: {}\n", exc.what()).c_str());
+		XPLMDebugString(fmt::format("Ditto: Initialize error: {}\n", exc.what()).c_str());
 	}
 }
 
@@ -41,7 +41,7 @@ MQTT_Client::MQTT_Client(std::string address, std::string topic, int qos, std::s
 
 MQTT_Client::~MQTT_Client()
 {
-	if (client_ != nullptr) {
+	if (client_) {
 		try {
 			client_->unsubscribe(topic_)->wait();
 			client_->stop_consuming();
@@ -74,24 +74,24 @@ MQTT_Client& MQTT_Client::operator=(MQTT_Client&& other) noexcept
 	std::swap(topic_, other.topic_);
 	std::swap(qos_, other.qos_);
 
-	if (client_ != nullptr) {
+	if (client_) {
 		client_.reset();
 	}
 	std::swap(client_, other.client_);
 
 	std::swap(conn_options_, other.conn_options_);
 
-	if (buffer_ != nullptr) {
+	if (buffer_) {
 		buffer_.reset();
 	}
 	std::swap(buffer_, other.buffer_);
 
-	if (callback_ != nullptr) {
+	if (callback_) {
 		callback_.reset();
 	}
 	std::swap(callback_, other.callback_);
 
-	if (publish_listener_ != nullptr) {
+	if (publish_listener_) {
 		publish_listener_.reset();
 	}
 	std::swap(publish_listener_, other.publish_listener_);
@@ -198,14 +198,14 @@ void action_callback::on_success(const mqtt::token& tok)
 void action_callback::connected(const std::string& cause)
 {
 	XPLMDebugString(fmt::format("Ditto: Connection success.\n").c_str());
-	if (buffer_ == nullptr) {
-		// Publisher
-		XPLMDebugString(fmt::format("Ditto: Publishing to: {}\n", topic_).c_str());
-	}
-	else {
+	if (buffer_) {
 		// Subscriber
 		XPLMDebugString(fmt::format("Ditto: Subscribing to: {}\n", topic_).c_str());
 		mqtt::token_ptr token = cli_.subscribe(topic_, 0, nullptr, *subscribe_listener_);
+	}
+	else {
+		// Publisher
+		XPLMDebugString(fmt::format("Ditto: Publishing to: {}\n", topic_).c_str());
 	}
 }
 
@@ -221,7 +221,7 @@ void action_callback::connection_lost(const std::string& cause)
 
 void action_callback::message_arrived(mqtt::const_message_ptr msg)
 {
-	if (buffer_ != nullptr) {
+	if (buffer_) {
 		apply([new_val = msg->get_payload_str()](std::string& val) mutable {
 			val = std::move(new_val);
 		}, * buffer_);
