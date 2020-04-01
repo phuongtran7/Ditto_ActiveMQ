@@ -14,8 +14,8 @@ void SubscribeTopic::start_subscriber()
 	subscriber_ = std::make_unique<MQTT_Client>(address_, topic_, 0, buffer_);
 }
 
-SubscribeTopic::SubscribeTopic(const std::string& topic, const std::string& address, const std::string& config) :
-	Topic(topic, address, config)
+SubscribeTopic::SubscribeTopic(std::string topic, std::string address, std::string config) :
+	Topic(std::move(topic), std::move(address), std::move(config))
 {
 }
 

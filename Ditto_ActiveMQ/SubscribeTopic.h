@@ -38,7 +38,7 @@ private:
 	}
 
 public:
-	SubscribeTopic(const std::string& topic, const std::string& address, const std::string& config);
+	SubscribeTopic(std::string topic, std::string address, std::string config);
 	bool init() override;
 	void update() override;
 	void shutdown() override;

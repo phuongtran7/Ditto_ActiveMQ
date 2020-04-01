@@ -97,8 +97,8 @@ void PublishTopic::empty_list()
 	reset_builder();
 }
 
-PublishTopic::PublishTopic(const std::string& topic, const std::string& address, const std::string& config) :
-	Topic(topic, address, config)
+PublishTopic::PublishTopic(std::string topic, std::string address, std::string config) :
+	Topic(std::move(topic), std::move(address), std::move(config))
 {
 }
 
