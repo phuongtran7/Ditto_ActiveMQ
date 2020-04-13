@@ -1,6 +1,8 @@
 # Ditto
 <h4 align="center">An X-Plane plugin that can add/remove/swap datarefs and endpoints on-the-fly.</h4>
 
+**Note:** This version of Ditto will be deprecated in the near future. Please see [Ditto](https://github.com/phuongtran7/Ditto) for a newer rewrite.
+
 Ditto is an X-Plane plugin that allows the user to pause the simulator in a specific scenario to add/remove or swap the datarefs that Ditto is sending the values out. This version of Ditto will act as a MQTT publisher and publish a byte message that contains serialized flexbuffers data. Ditto also has the ability to write the data back into X-Plane dataref by subscribing to another topic if defined in the config file.
 
 Ditto is mainly tested with [ActiveMQ Artemis](https://activemq.apache.org/components/artemis/), hence the name. However, any MQTT broker, for example: [Eclipse Mosquitto](https://mosquitto.org/) and [HiveMQ](https://github.com/hivemq/hivemq-community-edition), that supports MQTT v3.1.1 should work as well.
